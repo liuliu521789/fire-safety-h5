@@ -3,8 +3,8 @@ import { createRouter, createWebHashHistory } from 'vue-router'
 const router = createRouter({
   history: createWebHashHistory(),
   routes: [
-    { path: '/', name: 'start', component: () => import('@/views/StartView.vue') },
-    { path: '/home', name: 'home', component: () => import('@/views/HomeView.vue') },
+    { path: '/', name: 'home', component: () => import('@/views/HomeView.vue') },
+    { path: '/home', redirect: '/' },
     { path: '/level/hazard', name: 'hazard', component: () => import('@/views/HazardView.vue') },
     { path: '/level/escape', name: 'escape', component: () => import('@/views/EscapeView.vue') },
     {

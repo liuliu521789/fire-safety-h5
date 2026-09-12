@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { assetUrl } from '@/utils/assets'
+
 withDefaults(
   defineProps<{
     title?: string
@@ -10,18 +12,17 @@ withDefaults(
 )
 
 const emit = defineEmits<{ close: [] }>()
+const mascotWebp = assetUrl('images/mascot.webp')
+const mascotPng = assetUrl('images/mascot.png')
 </script>
 
 <template>
   <div class="modal-mask" @click.self="closable && emit('close')">
     <div class="modal-panel scene-panel" :class="{ 'has-mascot': mascot }">
-      <img
-        v-if="mascot"
-        class="mascot"
-        src="/images/mascot.png"
-        alt="豫小安"
-        draggable="false"
-      />
+      <picture v-if="mascot" class="mascot">
+        <source :srcset="mascotWebp" type="image/webp" />
+        <img :src="mascotPng" alt="豫小安" draggable="false" decoding="async" loading="lazy" />
+      </picture>
       <button
         v-if="closable"
         class="close-btn"
@@ -74,10 +75,16 @@ const emit = defineEmits<{ close: [] }>()
   transform: translateX(-50%);
   pointer-events: none;
   user-select: none;
-  -webkit-user-drag: none;
   filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.4));
   z-index: 2;
   animation: mascotPop 0.45s cubic-bezier(0.22, 1.2, 0.36, 1) both;
+}
+
+.mascot img {
+  display: block;
+  width: 100%;
+  height: auto;
+  -webkit-user-drag: none;
 }
 
 .close-btn {

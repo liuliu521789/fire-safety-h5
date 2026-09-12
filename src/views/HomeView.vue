@@ -4,6 +4,7 @@ import { nextTick, onMounted, onUnmounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import GameTransition from '@/components/GameTransition.vue'
 import { useGameStore } from '@/stores/game'
+import { assetUrl } from '@/utils/assets'
 import { playTone } from '@/utils/sound'
 import { unlockBgmFromGesture } from '@/utils/bgm'
 
@@ -23,13 +24,13 @@ const HOTSPOTS = [
   },
 ]
 
-const EMBERS = Array.from({ length: 14 }, (_, i) => ({
+const EMBERS = Array.from({ length: 7 }, (_, i) => ({
   id: i,
-  left: 8 + ((i * 17) % 84),
-  delay: (i % 7) * 0.35,
-  duration: 4.5 + (i % 5) * 0.7,
-  size: 3 + (i % 4),
-  drift: (i % 2 === 0 ? 1 : -1) * (12 + (i % 5) * 4),
+  left: 10 + ((i * 13) % 80),
+  delay: (i % 5) * 0.45,
+  duration: 5 + (i % 4) * 0.8,
+  size: 3 + (i % 3),
+  drift: (i % 2 === 0 ? 1 : -1) * (10 + (i % 4) * 3),
 }))
 
 const router = useRouter()
@@ -38,17 +39,27 @@ const stageRef = ref<HTMLElement | null>(null)
 const transitioning = ref(false)
 const pressedId = ref<string | null>(null)
 const ready = ref(false)
+const homeBgWebp = assetUrl('homebg.webp')
+const homeBgJpg = assetUrl('homebg.jpg')
 let enterTween: gsap.core.Timeline | null = null
 
 onMounted(async () => {
   await nextTick()
   ready.value = true
+  // 预取第一关场景图，进入关卡时更快
+  ;['images/hazard-home.webp', 'images/hazard-home.jpg'].forEach((p) => {
+    const link = document.createElement('link')
+    link.rel = 'prefetch'
+    link.as = 'image'
+    link.href = assetUrl(p)
+    document.head.appendChild(link)
+  })
   if (!stageRef.value) return
   enterTween = gsap.timeline({ defaults: { ease: 'power2.out' } })
   enterTween
-    .from(stageRef.value, { opacity: 0, scale: 1.04, duration: 0.85 })
-    .from('.fx-layer', { opacity: 0, duration: 0.6 }, '-=0.35')
-    .from('.hotspot', { opacity: 0, scale: 0.92, duration: 0.45 }, '-=0.25')
+    .from(stageRef.value, { opacity: 0, scale: 1.03, duration: 0.55 })
+    .from('.fx-layer', { opacity: 0, duration: 0.4 }, '-=0.25')
+    .from('.hotspot', { opacity: 0, scale: 0.95, duration: 0.35 }, '-=0.2')
 })
 
 onUnmounted(() => {
@@ -81,7 +92,10 @@ function goLevel() {
 <template>
   <div class="home" :class="{ ready }">
     <div ref="stageRef" class="stage">
-      <img class="bg" src="/homebg.jpg" alt="火线行动：消防安全知识挑战" draggable="false" />
+      <picture class="bg-wrap">
+        <source :srcset="homeBgWebp" type="image/webp" />
+        <img class="bg" :src="homeBgJpg" alt="火线行动：消防安全知识挑战" draggable="false" decoding="async" fetchpriority="high" />
+      </picture>
 
       <div class="fx-layer" aria-hidden="true">
         <div class="siren siren-red" />
@@ -162,13 +176,16 @@ function goLevel() {
   max-height: 100dvh;
   max-height: 100svh;
   transform-origin: center center;
-  will-change: transform, opacity;
 }
 
+.bg-wrap,
 .bg {
   display: block;
   width: 100%;
   height: 100%;
+}
+
+.bg {
   object-fit: fill;
   user-select: none;
   pointer-events: none;
@@ -189,19 +206,18 @@ function goLevel() {
   width: 42%;
   height: 100%;
   opacity: 0;
-  mix-blend-mode: screen;
 }
 
 .siren-red {
   left: 0;
-  background: radial-gradient(ellipse at 20% 45%, rgba(255, 48, 48, 0.35), transparent 62%);
-  animation: sirenFlash 1.6s ease-in-out infinite;
+  background: radial-gradient(ellipse at 20% 45%, rgba(255, 48, 48, 0.28), transparent 62%);
+  animation: sirenFlash 2s ease-in-out infinite;
 }
 
 .siren-blue {
   right: 0;
-  background: radial-gradient(ellipse at 80% 48%, rgba(48, 140, 255, 0.32), transparent 62%);
-  animation: sirenFlash 1.6s ease-in-out infinite 0.8s;
+  background: radial-gradient(ellipse at 80% 48%, rgba(48, 140, 255, 0.24), transparent 62%);
+  animation: sirenFlash 2s ease-in-out infinite 1s;
 }
 
 .scan {
@@ -212,12 +228,11 @@ function goLevel() {
   background: linear-gradient(
     180deg,
     transparent,
-    rgba(120, 200, 255, 0.08),
-    rgba(255, 255, 255, 0.05),
+    rgba(120, 200, 255, 0.06),
+    rgba(255, 255, 255, 0.04),
     transparent
   );
-  animation: scanMove 5.5s linear infinite;
-  mix-blend-mode: screen;
+  animation: scanMove 6.5s linear infinite;
 }
 
 .heat-shimmer {
@@ -226,10 +241,8 @@ function goLevel() {
   top: 28%;
   width: 36%;
   height: 34%;
-  background: radial-gradient(circle, rgba(255, 120, 40, 0.14), transparent 70%);
-  filter: blur(8px);
-  animation: heatPulse 2.4s ease-in-out infinite;
-  mix-blend-mode: screen;
+  background: radial-gradient(circle, rgba(255, 120, 40, 0.12), transparent 70%);
+  animation: heatPulse 2.8s ease-in-out infinite;
 }
 
 .ember {

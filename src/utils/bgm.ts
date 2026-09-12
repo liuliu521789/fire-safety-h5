@@ -10,7 +10,7 @@ function getAudio() {
   if (!audio) {
     audio = new Audio(`${import.meta.env.BASE_URL}audio/bg.mp3`)
     audio.loop = true
-    audio.preload = 'auto'
+    audio.preload = 'metadata'
     audio.volume = BGM_VOLUME
     audio.setAttribute('playsinline', 'true')
     audio.setAttribute('webkit-playsinline', 'true')

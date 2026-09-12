@@ -9,6 +9,7 @@ import GameTimer from '@/components/GameTimer.vue'
 import ScorePopup from '@/components/ScorePopup.vue'
 import { HAZARDS, type HazardItem } from '@/data/hazards'
 import { useGameStore } from '@/stores/game'
+import { assetUrl } from '@/utils/assets'
 import { playTone } from '@/utils/sound'
 
 const IDLE_HINT_MS = 5000
@@ -28,6 +29,8 @@ let idleTimer: number | null = null
 
 const foundCount = computed(() => found.value.size)
 const foundList = computed(() => HAZARDS.filter((h) => found.value.has(h.id)))
+const hazardWebp = assetUrl('images/hazard-home.webp')
+const hazardJpg = assetUrl('images/hazard-home.jpg')
 
 function clearIdleTimer() {
   if (idleTimer != null) {
@@ -132,12 +135,16 @@ function hotspotStyle(h: HazardItem) {
     <p class="mission">观察家庭场景，点击图中的消防安全隐患</p>
 
     <div class="scene scene-panel" @click="onMiss">
-      <img
-        class="scene-bg"
-        src="/images/hazard-home.png"
-        alt="家庭场景中的消防隐患"
-        draggable="false"
-      />
+      <picture class="scene-bg-wrap">
+        <source :srcset="hazardWebp" type="image/webp" />
+        <img
+          class="scene-bg"
+          :src="hazardJpg"
+          alt="家庭场景中的消防隐患"
+          draggable="false"
+          decoding="async"
+        />
+      </picture>
       <div class="scene-veil" />
 
       <div class="zone living">客厅</div>
@@ -221,11 +228,15 @@ function hotspotStyle(h: HazardItem) {
   background: #1a2430;
 }
 
+.scene-bg-wrap,
 .scene-bg {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
+}
+
+.scene-bg {
   object-fit: cover;
   object-position: center;
   pointer-events: none;

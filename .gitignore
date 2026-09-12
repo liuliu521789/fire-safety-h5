@@ -26,5 +26,5 @@ dist-ssr
 # Root-level source copies (runtime assets are under public/)
 /bg.mp3
 /homebg.jpg
-/萌小安IP.png
+/homebg.webp
 *IP.png
