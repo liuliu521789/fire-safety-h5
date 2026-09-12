@@ -9,6 +9,7 @@ export interface EscapeQuestion {
   options: EscapeOption[]
   /** 正确答案，如 ['D'] 或 ['A','B','C'] */
   answer: string[]
+  /** 答题后展示的详细科普解释 */
   knowledge: string
 }
 
@@ -24,7 +25,8 @@ export const ESCAPE_QUESTION_BANK: EscapeQuestion[] = [
       { key: 'D', text: '119' },
     ],
     answer: ['D'],
-    knowledge: '我国火警电话是 119，应牢记并正确拨打。',
+    knowledge:
+      '正确答案是 D（119）。110 是报警（治安）、120 是急救、122 是交通事故报警，容易记混。发生火灾时应立即拨打 119，并尽量说清起火地点、火势和人员情况，方便消防力量快速出动。',
   },
   {
     id: 'fq2',
@@ -36,7 +38,8 @@ export const ESCAPE_QUESTION_BANK: EscapeQuestion[] = [
       { key: 'D', text: '详细讲解引起火灾的过程' },
     ],
     answer: ['A', 'B', 'C'],
-    knowledge: '报警应说清地点、火情和联系方式，不必详细描述起火过程。',
+    knowledge:
+      '正确答案是 A、B、C。报警重点是“在哪里、什么情况、怎么联系你”，让指挥中心能迅速派车。不必在电话里详细讲述起火原因和过程，那会耽误黄金救援时间；起火原因交由后续调查处理。',
   },
   {
     id: 'fq3',
@@ -48,7 +51,8 @@ export const ESCAPE_QUESTION_BANK: EscapeQuestion[] = [
       { key: 'D', text: '跳楼或惊吓' },
     ],
     answer: ['A'],
-    knowledge: '火灾中多数遇难者死于吸入有毒烟气，逃生时务必做好防烟。',
+    knowledge:
+      '正确答案是 A。火场中塑料、装修材料等燃烧会产生一氧化碳等有毒烟气，多数遇难者其实是因吸入烟气昏迷后遇难，而不是直接被火烧到。逃生时要用湿毛巾捂口鼻、低姿前进，尽快离开烟气区域。',
   },
   {
     id: 'fq4',
@@ -59,7 +63,8 @@ export const ESCAPE_QUESTION_BANK: EscapeQuestion[] = [
       { key: 'C', text: '大功率的电器设备' },
     ],
     answer: ['A'],
-    knowledge: '车上应配备灭火器，不要存放易燃物品或大功率电器。',
+    knowledge:
+      '正确答案是 A。车载灭火器可用于扑救初起火灾，争取逃生和救援时间。打火机、喷雾罐等易燃品，以及大功率电器，在暴晒或线路故障时都可能成为起火源，不应长期放在车内。',
   },
   {
     id: 'fq5',
@@ -70,7 +75,8 @@ export const ESCAPE_QUESTION_BANK: EscapeQuestion[] = [
       { key: 'C', text: '主动减速、停车或让道' },
     ],
     answer: ['C'],
-    knowledge: '遇消防车等应急车辆应主动让行，保障救援通道畅通。',
+    knowledge:
+      '正确答案是 C。消防车执行任务时争分夺秒，道路上的每一秒都可能关系到生命。听到警笛应主动减速靠右、停车让行，严禁占道、并排或强行超车，否则不仅违法，还会延误救援。',
   },
   {
     id: 'fq6',
@@ -81,7 +87,8 @@ export const ESCAPE_QUESTION_BANK: EscapeQuestion[] = [
       { key: 'C', text: '为了方便，将大量柴草堆放在灶台和厨房周围' },
     ],
     answer: ['A', 'B'],
-    knowledge: '柴草远离灶台，教育孩子不玩火，不把孩子单独锁在家中。',
+    knowledge:
+      '正确答案是 A、B。秸秆、柴草靠近房屋或灶台，一旦火星溅落极易连片起火。孩子玩火、独自被锁家中也是农村火灾常见诱因。柴草应远离灶台和厨房，并定期清理房屋周边可燃物。',
   },
   {
     id: 'fq7',
@@ -93,7 +100,8 @@ export const ESCAPE_QUESTION_BANK: EscapeQuestion[] = [
       { key: 'D', text: '出门时不关闭不断电' },
     ],
     answer: ['B'],
-    knowledge: '电暖器应远离可燃物，出门时关闭断电。',
+    knowledge:
+      '正确答案是 B。电暖器表面温度很高，靠近床铺、窗帘、衣物可能烤燃起火；烘烤衣物、人走不断电同样危险。使用时应与可燃物保持一米以上距离，离开房间务必关闭电源。',
   },
   {
     id: 'fq8',
@@ -104,7 +112,8 @@ export const ESCAPE_QUESTION_BANK: EscapeQuestion[] = [
       { key: 'C', text: '让孩子尝试自己用燃气灶烹饪食物' },
     ],
     answer: ['B'],
-    knowledge: '要告知玩火危害，并将火种放在孩子够不到的地方。',
+    knowledge:
+      '正确答案是 B。儿童缺乏危险意识，玩火、乱动燃气灶都可能酿成悲剧。家长应反复告知危害，并把火柴、打火机等火种放在孩子够不到的地方，也不要让孩子单独操作明火器具。',
   },
   {
     id: 'fq9',
@@ -115,7 +124,8 @@ export const ESCAPE_QUESTION_BANK: EscapeQuestion[] = [
       { key: 'C', text: '只要在床头或茶几上摆上烟灰缸，可以躺在床上或沙发上吸烟' },
     ],
     answer: ['A'],
-    knowledge: '不卧床吸烟、不乱扔烟头，烟头须完全熄灭。',
+    knowledge:
+      '正确答案是 A。卧床、沙发吸烟时人一旦睡着，烟头掉落即可引燃被褥。未完全熄灭的烟头扔进垃圾桶，也可能点燃纸屑。烟头必须掐灭确认无火星后，再放入烟灰缸。',
   },
   {
     id: 'fq10',
@@ -127,7 +137,8 @@ export const ESCAPE_QUESTION_BANK: EscapeQuestion[] = [
       { key: 'D', text: '室外开阔处' },
     ],
     answer: ['A', 'D'],
-    knowledge: '电动车应在集中充电点或室外开阔处充电，严禁在家中、楼道充电。',
+    knowledge:
+      '正确答案是 A、D。电动车电池故障时可能剧烈燃烧，在家中、楼道充电一旦起火，烟气会迅速封堵逃生通道。应到集中充电点或室外开阔处充电，严禁飞线入户和楼道内充电。',
   },
   {
     id: 'fq11',
@@ -138,7 +149,8 @@ export const ESCAPE_QUESTION_BANK: EscapeQuestion[] = [
       { key: 'C', text: '无所谓' },
     ],
     answer: ['A'],
-    knowledge: '防盗窗应预留逃生口，保障紧急情况下可撤离。',
+    knowledge:
+      '正确答案是 A。全封闭防盗窗在火灾时会把人困在室内，救援和逃生都困难。选购时应选择带可开启逃生口的防盗窗，并确保钥匙或开启装置方便取用，关键时刻能迅速打开。',
   },
   {
     id: 'fq12',
@@ -150,7 +162,8 @@ export const ESCAPE_QUESTION_BANK: EscapeQuestion[] = [
       { key: 'D', text: '什么都不用做，房屋只要安全质量好就行' },
     ],
     answer: ['A', 'B', 'C'],
-    knowledge: '出租房屋须符合消防规定，配备设施并告知租客安全知识。',
+    knowledge:
+      '正确答案是 A、B、C。出租屋人员复杂、用电用火频繁，是火灾高发场所。房东应保证符合消防规定、配备灭火器等设施，并向租客说明疏散路线和安全注意事项，不能只看房屋质量而忽视消防。',
   },
   {
     id: 'fq13',
@@ -160,7 +173,8 @@ export const ESCAPE_QUESTION_BANK: EscapeQuestion[] = [
       { key: 'B', text: '不可以' },
     ],
     answer: ['B'],
-    knowledge: '动火作业现场严禁堆放纸箱等可燃物。',
+    knowledge:
+      '正确答案是 B。电焊会产生高温焊渣和飞溅火花，纸箱、木屑等可燃物被引燃后火势蔓延很快。动火作业必须清理现场可燃物，配备灭火器材，并安排看火人监护。',
   },
   {
     id: 'fq14',
@@ -172,7 +186,8 @@ export const ESCAPE_QUESTION_BANK: EscapeQuestion[] = [
       { key: 'D', text: '都不可以' },
     ],
     answer: ['D'],
-    knowledge: '消防车通道严禁停放任何车辆，包括电动自行车。',
+    knowledge:
+      '正确答案是 D。消防车通道是火灾救援的“生命通道”，私家车、电动车占用后，消防车无法靠近扑救，后果严重。通道上严禁停放任何车辆，发现占用应劝离或举报。',
   },
   {
     id: 'fq15',
@@ -184,7 +199,8 @@ export const ESCAPE_QUESTION_BANK: EscapeQuestion[] = [
       { key: 'D', text: '不检查，不关闭' },
     ],
     answer: ['A'],
-    knowledge: '应定期检查线路与燃气管道，离家前关闭电源气源。',
+    knowledge:
+      '正确答案是 A。老化线路、松动接口、燃气软管破损都是隐患。平时应定期检查，离家、睡前关闭电源总闸不必要回路和燃气阀门，从源头降低夜间和无人时的火灾风险。',
   },
   {
     id: 'fq16',
@@ -195,7 +211,8 @@ export const ESCAPE_QUESTION_BANK: EscapeQuestion[] = [
       { key: 'C', text: '从不关注' },
     ],
     answer: ['A'],
-    knowledge: '进入公共场所应先留意安全出口位置，以备紧急撤离。',
+    knowledge:
+      '正确答案是 A。公共场所人多、路径复杂，火灾时烟气很快会让人看不清方向。养成进门先看安全出口和疏散指示的习惯，紧急情况下能更快找到生路，避免盲目跟跑或逆流。',
   },
   {
     id: 'fq17',
@@ -207,7 +224,8 @@ export const ESCAPE_QUESTION_BANK: EscapeQuestion[] = [
       { key: 'D', text: '都不会' },
     ],
     answer: ['A'],
-    knowledge: '应学会正确使用灭火器和室内消火栓，提高自救互救能力。',
+    knowledge:
+      '正确答案是 A。初起火灾可用灭火器扑救：提拉握压（拔销、握把、对准、压把）。室内消火栓则需打开箱门、接水带水枪、开阀门出水。平时参加培训或演练，关键时刻才用得上。',
   },
   {
     id: 'fq18',
@@ -218,7 +236,8 @@ export const ESCAPE_QUESTION_BANK: EscapeQuestion[] = [
       { key: 'C', text: '周围就没有消防设施' },
     ],
     answer: ['A'],
-    knowledge: '了解身边消防设施位置，关键时刻才能快速使用。',
+    knowledge:
+      '正确答案是 A。灭火器、消火栓、烟感、喷淋和疏散指示灯都是身边的“保镖”。平时走一走记一记它们的位置，火灾初期才能第一时间取用器材、沿正确路线撤离。',
   },
   {
     id: 'fq19',
@@ -229,7 +248,8 @@ export const ESCAPE_QUESTION_BANK: EscapeQuestion[] = [
       { key: 'C', text: '在现场拨打手机报警' },
     ],
     answer: ['B'],
-    knowledge: '燃气泄漏时严禁开关电器，应疏散、通风，到安全处再报警。',
+    knowledge:
+      '正确答案是 B。燃气遇电火花可能爆炸，开灯、打电话、开关电器都很危险。应迅速关闭气源阀门（若可安全操作）、疏散人员、打开门窗通风，到室外安全地点后再报警。',
   },
   {
     id: 'fq20',
@@ -240,7 +260,8 @@ export const ESCAPE_QUESTION_BANK: EscapeQuestion[] = [
       { key: 'C', text: '盖上锅盖并关闭燃气开关' },
     ],
     answer: ['B', 'C'],
-    knowledge: '油锅着火不可泼水，应用锅盖或灭火毯覆盖并关闭气源。',
+    knowledge:
+      '正确答案是 B、C。油锅着火时泼水会爆溅，火势反而扩大。正确做法是迅速盖上锅盖或用灭火毯覆盖隔绝空气，并关闭燃气；千万不要端起油锅乱跑。',
   },
   {
     id: 'fq21',
@@ -251,7 +272,8 @@ export const ESCAPE_QUESTION_BANK: EscapeQuestion[] = [
       { key: 'C', text: '抓紧扑打火焰' },
     ],
     answer: ['A'],
-    knowledge: '火势猛烈时应迅速逃生，不要因财物延误撤离。',
+    knowledge:
+      '正确答案是 A。火势猛烈时，滞留抢救财物或盲目扑打都会让人吸入烟气、错过逃生窗口。应立即沿疏散路线撤离，到安全区域后再报警，生命永远优先于财产。',
   },
   {
     id: 'fq22',
@@ -262,7 +284,8 @@ export const ESCAPE_QUESTION_BANK: EscapeQuestion[] = [
       { key: 'C', text: '可用打手电筒、挥舞衣物、呼叫等方式向窗外发送求救信号、等待救援' },
     ],
     answer: ['C'],
-    knowledge: '高层被困时应固守待援，向外发送明显求救信号。',
+    knowledge:
+      '正确答案是 C。高层被困时强行冲火极易遇难。应关闭通向火场的门窗、用湿毛巾堵缝，退到阳台或窗边，用灯光、衣物、呼救等方式发出明显信号，等待消防救援，切勿盲目跳楼。',
   },
   {
     id: 'fq23',
@@ -274,7 +297,8 @@ export const ESCAPE_QUESTION_BANK: EscapeQuestion[] = [
       { key: 'D', text: '消防水枪、水带' },
     ],
     answer: ['A', 'B', 'C'],
-    knowledge: '家庭宜配备灭火器、逃生绳（缓降器）、手电筒和防烟面罩等。',
+    knowledge:
+      '正确答案是 A、B、C。家用手提灭火器可应对初起火；缓降器/逃生绳、手电筒和防烟面罩有助于撤离。水枪水带属于专业消防装备，家庭一般不具备接口和操作条件，不必强行配备。',
   },
   {
     id: 'fq24',
@@ -286,7 +310,8 @@ export const ESCAPE_QUESTION_BANK: EscapeQuestion[] = [
       { key: 'D', text: '无照经营' },
     ],
     answer: ['A', 'B', 'C'],
-    knowledge: '堵塞通道、损坏挪用消防设施等均属消防违法，应坚决杜绝。',
+    knowledge:
+      '正确答案是 A、B、C。堵塞出口通道、损坏挪用消火栓灭火器等，会直接导致火灾时无法逃生和扑救，属于消防违法。无照经营主要涉及市场监管等其他法规，不是本题所指的消防违法行为。',
   },
   {
     id: 'fq25',
@@ -299,14 +324,15 @@ export const ESCAPE_QUESTION_BANK: EscapeQuestion[] = [
       { key: 'E', text: '会开消防车' },
     ],
     answer: ['A', 'B', 'C', 'D'],
-    knowledge: '员工应做到会查隐患、会报警、会扑救初起火灾、会逃生自救。',
+    knowledge:
+      '正确答案是 A、B、C、D。这是单位消防“四个能力”的基本要求：会查隐患、会报警、会扑救初起火灾、会逃生和组织疏散。开消防车属于消防专业人员职责，不是普通员工培训目标。',
   },
 ]
 
 export const ESCAPE_QUIZ_COUNT = 3
 
 export function isMultiQuestion(q: EscapeQuestion) {
-  return q.answer.length > 1
+  return q.answer.length > 1 || /（多选）|【多选】/.test(q.prompt)
 }
 
 function sameAnswers(a: string[], b: string[]) {
@@ -318,6 +344,11 @@ function sameAnswers(a: string[], b: string[]) {
 
 export function checkEscapeAnswer(q: EscapeQuestion, selected: string[]) {
   return sameAnswers(q.answer, selected)
+}
+
+/** 格式化正确答案展示，如 A、B、C */
+export function formatAnswerKeys(keys: string[]) {
+  return [...keys].sort().join('、')
 }
 
 /** 从题库中随机抽取不重复题目 */

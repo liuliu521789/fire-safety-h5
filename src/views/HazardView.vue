@@ -23,12 +23,16 @@ const popup = ref<{ value: number; text: string } | null>(null)
 const done = ref(false)
 const missMsg = ref('')
 const running = ref(true)
-const showHint = ref(false)
+/** 右下角「给点提示」卡片 */
+const showTipCard = ref(false)
+/** 用户点击卡片后高亮的单个未发现隐患 */
+const hintedId = ref<string | null>(null)
 
 let idleTimer: number | null = null
 
 const foundCount = computed(() => found.value.size)
 const foundList = computed(() => HAZARDS.filter((h) => found.value.has(h.id)))
+const unfound = computed(() => HAZARDS.filter((h) => !found.value.has(h.id)))
 const hazardWebp = assetUrl('images/hazard-home.webp')
 const hazardJpg = assetUrl('images/hazard-home.jpg')
 
@@ -39,13 +43,29 @@ function clearIdleTimer() {
   }
 }
 
-function resetIdleHint() {
-  showHint.value = false
+function scheduleTipCard() {
+  showTipCard.value = false
   clearIdleTimer()
-  if (done.value) return
+  if (done.value || unfound.value.length === 0) return
   idleTimer = window.setTimeout(() => {
-    if (!done.value) showHint.value = true
+    if (!done.value && unfound.value.length > 0) showTipCard.value = true
   }, IDLE_HINT_MS)
+}
+
+function onTipCardClick(e: Event) {
+  e.stopPropagation()
+  if (done.value) return
+  const pool = unfound.value
+  if (!pool.length) {
+    showTipCard.value = false
+    return
+  }
+  const pick = pool[Math.floor(Math.random() * pool.length)]
+  hintedId.value = pick.id
+  showTipCard.value = false
+  playTone('click', game.soundEnabled)
+  // 点完提示后再闲置 5 秒，才再次出现卡片
+  scheduleTipCard()
 }
 
 function markFound(id: string) {
@@ -54,6 +74,7 @@ function markFound(id: string) {
   found.value = next
   game.hazardFound = next.size
   game.persist()
+  if (hintedId.value === id) hintedId.value = null
 }
 
 function onHazard(id: string) {
@@ -61,7 +82,7 @@ function onHazard(id: string) {
   const item = HAZARDS.find((h) => h.id === id)
   if (!item) return
 
-  resetIdleHint()
+  scheduleTipCard()
   markFound(id)
   playTone('correct', game.soundEnabled)
   missMsg.value = ''
@@ -78,7 +99,7 @@ function onHazard(id: string) {
 
 function onMiss() {
   if (done.value) return
-  resetIdleHint()
+  scheduleTipCard()
   playTone('wrong', game.soundEnabled)
   missMsg.value = '这里暂时没有发现明显隐患。'
   window.setTimeout(() => {
@@ -90,7 +111,8 @@ function finish(allFound: boolean) {
   if (done.value) return
   done.value = true
   running.value = false
-  showHint.value = false
+  showTipCard.value = false
+  hintedId.value = null
   clearIdleTimer()
   const score = allFound ? 20 : Math.min(20, found.value.size * 4)
   game.setLevelScore('hazard', score)
@@ -100,7 +122,7 @@ function finish(allFound: boolean) {
 }
 
 onMounted(() => {
-  resetIdleHint()
+  scheduleTipCard()
 })
 
 onUnmounted(() => {
@@ -155,7 +177,7 @@ function hotspotStyle(h: HazardItem) {
         v-for="h in HAZARDS"
         :key="h.id"
         class="hotspot"
-        :class="{ found: found.has(h.id), hint: showHint && !found.has(h.id) }"
+        :class="{ found: found.has(h.id), hint: hintedId === h.id && !found.has(h.id) }"
         type="button"
         :aria-label="h.label"
         :style="hotspotStyle(h)"
@@ -163,6 +185,19 @@ function hotspotStyle(h: HazardItem) {
       >
         <span class="scan-ring" />
         <span v-if="found.has(h.id)" class="found-mark">✓</span>
+      </button>
+
+      <button
+        v-if="showTipCard"
+        class="tip-card"
+        type="button"
+        @click="onTipCardClick"
+      >
+        <span class="tip-card-emoji">💡</span>
+        <span class="tip-card-text">
+          <b>太难了？</b>
+          <i>给点提示吧</i>
+        </span>
       </button>
 
       <ScorePopup v-if="popup" :value="popup.value" :text="popup.text" />
@@ -222,8 +257,10 @@ function hotspotStyle(h: HazardItem) {
 
 .scene {
   position: relative;
-  height: min(52dvh, 430px);
-  margin: 0 16px;
+  width: min(calc(100% - 32px), calc(min(52dvh, 430px) * 4 / 3));
+  aspect-ratio: 4 / 3;
+  height: auto;
+  margin: 0 auto;
   overflow: hidden;
   background: #1a2430;
 }
@@ -237,7 +274,7 @@ function hotspotStyle(h: HazardItem) {
 }
 
 .scene-bg {
-  object-fit: cover;
+  object-fit: fill;
   object-position: center;
   pointer-events: none;
   user-select: none;
@@ -280,6 +317,54 @@ function hotspotStyle(h: HazardItem) {
 .balcony {
   right: 8%;
   top: 10%;
+}
+
+.tip-card {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  max-width: min(72%, 220px);
+  padding: 10px 12px;
+  border: 1px solid rgba(255, 213, 74, 0.55);
+  border-radius: 14px;
+  background: rgba(7, 26, 43, 0.88);
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.35);
+  color: #ffe9a8;
+  text-align: left;
+  cursor: pointer;
+  animation: tipCardIn 0.35s ease both;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.tip-card:active {
+  transform: scale(0.98);
+}
+
+.tip-card-emoji {
+  font-size: 18px;
+  line-height: 1;
+}
+
+.tip-card-text {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.tip-card-text b {
+  font-size: 13px;
+  font-weight: 800;
+  color: #ffd54a;
+}
+
+.tip-card-text i {
+  font-style: normal;
+  font-size: 12px;
+  color: #d7e6ff;
 }
 
 .hotspot {
@@ -433,6 +518,17 @@ function hotspotStyle(h: HazardItem) {
 @keyframes dashPulse {
   to {
     border-color: rgba(255, 213, 74, 0.8);
+  }
+}
+
+@keyframes tipCardIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: none;
   }
 }
 

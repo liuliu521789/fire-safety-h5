@@ -4,6 +4,7 @@ import { nextTick, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import ActionCertificate from '@/components/ActionCertificate.vue'
 import GameButton from '@/components/GameButton.vue'
+import SoundToggle from '@/components/SoundToggle.vue'
 import { useGameStore } from '@/stores/game'
 import { shareChallenge } from '@/utils/share'
 import { playTone } from '@/utils/sound'
@@ -25,7 +26,7 @@ async function share() {
   const result = await shareChallenge(game.score)
   if (result === true) tip.value = '已调起系统分享'
   else if (result === 'copied') tip.value = '挑战文案已复制到剪贴板'
-  else tip.value = '当前环境暂不支持分享，可下载或截图保存安全证书'
+  else tip.value = '当前环境暂不支持分享，可下载或截图保存证书'
 }
 
 async function downloadCert() {
@@ -43,7 +44,7 @@ async function downloadCert() {
     })
     const link = document.createElement('a')
     const safeName = (game.userName || '用户').replace(/[\\/:*?"<>|]/g, '')
-    link.download = `消防安全证书-${safeName}.png`
+    link.download = `火线行动证书-${safeName}.png`
     link.href = canvas.toDataURL('image/png')
     link.click()
     tip.value = '证书已下载为图片'
@@ -64,6 +65,9 @@ function retry() {
 
 <template>
   <div class="game-shell cert-page">
+    <div class="page-top">
+      <SoundToggle />
+    </div>
     <div class="wrap">
       <div ref="certRef" class="cert-capture">
         <ActionCertificate
@@ -94,14 +98,22 @@ function retry() {
   padding: 20px 16px calc(28px + var(--safe-bottom));
 }
 
+.page-top {
+  display: flex;
+  justify-content: flex-end;
+  max-width: 360px;
+  margin: 0 auto 8px;
+}
+
 .wrap {
   position: relative;
   z-index: 1;
-  max-width: 420px;
+  max-width: 360px;
   margin: 0 auto;
 }
 
 .cert-capture {
+  width: 100%;
   border-radius: 8px;
 }
 

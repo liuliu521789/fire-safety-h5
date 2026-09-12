@@ -6,7 +6,7 @@ import GameHeader from '@/components/GameHeader.vue'
 import GameModal from '@/components/GameModal.vue'
 import { useGameStore } from '@/stores/game'
 import { playTone } from '@/utils/sound'
-import { speak, speakSequence, stopSpeak } from '@/utils/speech'
+import { speak, speakSequence, stopSpeak, unlockSpeech, canSpeak } from '@/utils/speech'
 
 const router = useRouter()
 const game = useGameStore()
@@ -18,21 +18,35 @@ const where = ref('')
 const people = ref('')
 const dialError = ref('')
 const subtitle = ref('')
+const speechHint = ref('')
+let introPlayed = false
 
+const INTRO = '火警报警演练开始，请拨打正确的火警电话。'
 const keys = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '*', '0', '#'] as const
 
 const canSubmitInfo = computed(() => what.value === '火灾' && !!where.value && !!people.value)
 
 async function announce(display: string, voice?: string, rate = 1) {
   subtitle.value = display
-  await speak(voice ?? display, game.soundEnabled, rate)
+  if (!game.soundEnabled) return
+  await speak(voice ?? display, true, rate)
+}
+
+async function playIntroFromGesture() {
+  if (introPlayed || !game.soundEnabled) return
+  introPlayed = true
+  speechHint.value = ''
+  unlockSpeech()
+  await announce(INTRO)
 }
 
 onMounted(() => {
-  void announce(
-    '火警报警演练开始，请拨打正确的火警电话。',
-    '火警报警演练开始，请拨打正确的火警电话。',
-  )
+  subtitle.value = INTRO
+  if (!canSpeak()) {
+    speechHint.value = '当前浏览器不支持语音播报，请查看屏幕字幕操作'
+    return
+  }
+  speechHint.value = '点击拨号键后将播报语音提示'
 })
 
 onUnmounted(() => {
@@ -43,35 +57,36 @@ function press(key: string) {
   if (stage.value !== 'dial') return
   if (key === '*' || key === '#') return
   if (dial.value.length >= 3) return
+  unlockSpeech()
   playTone('click', game.soundEnabled)
   dial.value += key
   dialError.value = ''
+  void playIntroFromGesture()
 }
 
 function backspace() {
+  unlockSpeech()
   dial.value = dial.value.slice(0, -1)
   dialError.value = ''
 }
 
 async function call() {
+  unlockSpeech()
+  introPlayed = true
+  speechHint.value = ''
   if (dial.value === '119') {
     playTone('correct', game.soundEnabled)
     stage.value = 'what'
-    await announce(
-      '火警电话已接通。您好，消防救援指挥中心，请问发生了什么情况？',
-      '火警电话已接通。您好，消防救援指挥中心，请问发生了什么情况？',
-    )
+    await announce('火警电话已接通。您好，消防救援指挥中心，请问发生了什么情况？')
   } else {
     playTone('wrong', game.soundEnabled)
     dialError.value = '号码不正确，请拨打正确的火警电话'
-    await announce(
-      '号码不正确，请拨打正确的火警电话。',
-      '号码不正确，请拨打正确的火警电话。',
-    )
+    await announce('号码不正确，请拨打正确的火警电话。')
   }
 }
 
 async function chooseWhat(v: string) {
+  unlockSpeech()
   what.value = v
   playTone('click', game.soundEnabled)
   if (v === '火灾') {
@@ -84,6 +99,7 @@ async function chooseWhat(v: string) {
 }
 
 async function chooseWhere(v: string) {
+  unlockSpeech()
   where.value = v
   playTone('click', game.soundEnabled)
   stage.value = 'people'
@@ -91,12 +107,16 @@ async function chooseWhere(v: string) {
 }
 
 async function choosePeople(v: string) {
+  unlockSpeech()
   people.value = v
   playTone('click', game.soundEnabled)
-  await announce(`人员情况已记录，${v === '有' ? '有人被困' : v === '没有' ? '无人被困' : '人员情况暂不清楚'}。请确认报警信息。`)
+  await announce(
+    `人员情况已记录，${v === '有' ? '有人被困' : v === '没有' ? '无人被困' : '人员情况暂不清楚'}。请确认报警信息。`,
+  )
 }
 
 async function submitReport() {
+  unlockSpeech()
   if (!canSubmitInfo.value) {
     playTone('wrong', game.soundEnabled)
     await announce('请完整填写火灾地点和人员情况后再提交。')
@@ -149,6 +169,7 @@ function nextLevel() {
           <GameButton label="呼叫" @click="call" />
         </div>
         <p v-if="dialError" class="err">{{ dialError }}</p>
+        <p v-if="speechHint" class="speech-hint">{{ speechHint }}</p>
       </template>
 
       <template v-else-if="stage === 'what'">
@@ -284,6 +305,13 @@ function nextLevel() {
   text-align: center;
   color: #ffb4b0;
   font-size: 13px;
+}
+
+.speech-hint {
+  margin-top: 10px;
+  text-align: center;
+  color: #ffe082;
+  font-size: 12px;
 }
 
 .choices {

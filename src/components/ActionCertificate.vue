@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { formatTime, scoreLabel } from '@/utils/game'
 
 const props = defineProps<{
   score: number
@@ -25,9 +24,6 @@ const certNo = computed(() => {
   return `XF-${y}${m}${day}-${tail}`
 })
 
-const grade = computed(() => scoreLabel(props.score))
-
-/** 按等级切换荣誉称号字体渐变色 */
 const rankTone = computed(() => {
   if (props.score >= 90) return 'gold'
   if (props.score >= 75) return 'blue'
@@ -105,30 +101,81 @@ const rankStroke = computed(() => {
 
       <header class="head">
         <div class="emblem" aria-hidden="true">
-          <span class="emblem-ring" />
-          <span class="emblem-core"><i>安</i></span>
+          <svg class="medal" viewBox="0 0 64 72" role="img">
+            <defs>
+              <linearGradient :id="`medalFace-${rankTone}`" x1="20%" y1="0%" x2="80%" y2="100%">
+                <stop offset="0%" stop-color="var(--medal-hi)" />
+                <stop offset="45%" stop-color="var(--medal-mid)" />
+                <stop offset="100%" stop-color="var(--medal-lo)" />
+              </linearGradient>
+              <linearGradient :id="`medalRibbonL-${rankTone}`" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#e85d5d" />
+                <stop offset="100%" stop-color="#b71c1c" />
+              </linearGradient>
+              <linearGradient :id="`medalRibbonR-${rankTone}`" x1="100%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stop-color="#f08a8a" />
+                <stop offset="100%" stop-color="#c62828" />
+              </linearGradient>
+            </defs>
+            <!-- 绶带 -->
+            <path
+              :fill="`url(#medalRibbonL-${rankTone})`"
+              d="M22 2 L32 22 L26 22 L14 4 Z"
+            />
+            <path
+              :fill="`url(#medalRibbonR-${rankTone})`"
+              d="M42 2 L32 22 L38 22 L50 4 Z"
+            />
+            <path fill="#8b1515" d="M26 20h12l-2 8h-8z" opacity="0.85" />
+            <!-- 奖牌外圈 -->
+            <circle cx="32" cy="46" r="22" fill="#8b6d1a" opacity="0.35" />
+            <circle cx="32" cy="45" r="20.5" :fill="`url(#medalFace-${rankTone})`" />
+            <circle
+              cx="32"
+              cy="45"
+              r="17"
+              fill="none"
+              stroke="rgba(255,255,255,0.45)"
+              stroke-width="1.4"
+            />
+            <circle
+              cx="32"
+              cy="45"
+              r="14.5"
+              fill="none"
+              stroke="rgba(0,0,0,0.18)"
+              stroke-width="1"
+            />
+            <!-- 星形（圆心 32,45） -->
+            <g transform="translate(32 45)">
+              <path
+                fill="#fff8e1"
+                stroke="rgba(90,60,10,0.35)"
+                stroke-width="0.6"
+                stroke-linejoin="round"
+                d="M0,-11 L2.47,-3.4 L10.46,-3.4 L3.99,1.3 L6.47,8.9 L0,4.2 L-6.47,8.9 L-3.99,1.3 L-10.46,-3.4 L-2.47,-3.4 Z"
+              />
+            </g>
+          </svg>
         </div>
-        <p class="org">火线行动 · 消防安全知识挑战</p>
-        <h2>消防安全证书</h2>
-        <p class="sub">FIRE SAFETY CERTIFICATE</p>
-        <p class="no">证书编号：{{ certNo }}</p>
+        <h2>火线行动证书</h2>
+        <p class="sub">HUOXIAN ACTION CERTIFICATE</p>
+        <p class="cert-no">证书编号：{{ certNo }}</p>
       </header>
 
-      <div class="divider"><i /></div>
+      <div class="divider" aria-hidden="true"><i /></div>
 
       <section class="body">
-        <p class="statement">兹证明</p>
-        <p class="who-line">
-          <span class="who">{{ userName || '用户' }}</span>
-        </p>
-        <p class="statement tail">
-          已完成《火线行动：消防安全挑战》全部任务，综合表现评定如下：
-        </p>
+        <p class="who">{{ userName || '用户' }}</p>
 
-        <div class="rank-banner">
-          <p class="rank-label">荣誉称号</p>
-          <div class="rank-title-wrap" aria-label="荣誉称号">
-            <svg class="rank-svg" viewBox="0 0 360 72" role="img">
+        <div class="doc">
+          <p class="lead">
+            已顺利完成本次挑战全部关卡，综合表现良好。
+          </p>
+          <p class="lead-sub">经评定，荣誉称号为：</p>
+
+          <div class="rank-line" aria-label="荣誉称号">
+            <svg class="rank-svg" viewBox="0 0 360 88" role="img">
               <defs>
                 <linearGradient :id="`rankGrad-${rankTone}`" x1="0%" y1="0%" x2="0%" y2="100%">
                   <stop
@@ -140,49 +187,32 @@ const rankStroke = computed(() => {
                 </linearGradient>
                 <linearGradient :id="`rankShine-${rankTone}`" x1="0%" y1="0%" x2="0%" y2="100%">
                   <stop offset="0%" stop-color="#ffffff" stop-opacity="0.7" />
-                  <stop offset="38%" stop-color="#ffffff" stop-opacity="0.15" />
-                  <stop offset="100%" stop-color="#000000" stop-opacity="0.2" />
+                  <stop offset="40%" stop-color="#ffffff" stop-opacity="0.12" />
+                  <stop offset="100%" stop-color="#000000" stop-opacity="0.18" />
                 </linearGradient>
                 <filter :id="`rankSoft-${rankTone}`" x="-20%" y="-20%" width="140%" height="140%">
-                  <feDropShadow dx="0" dy="3" stdDeviation="2.2" flood-color="#000000" flood-opacity="0.28" />
+                  <feDropShadow dx="0" dy="2" stdDeviation="1.6" flood-color="#000000" flood-opacity="0.22" />
                 </filter>
               </defs>
-
-              <!-- 立体底层阴影 -->
               <text
-                class="rank-depth"
                 x="182"
-                y="50"
+                y="58"
                 text-anchor="middle"
-                font-size="42"
+                font-size="48"
                 font-weight="900"
-                letter-spacing="6"
+                letter-spacing="10"
                 :fill="rankDepth"
+                opacity="0.5"
               >
                 {{ rank }}
               </text>
-              <text
-                class="rank-depth"
-                x="181"
-                y="49"
-                text-anchor="middle"
-                font-size="42"
-                font-weight="900"
-                letter-spacing="6"
-                :fill="rankDepth"
-                opacity="0.55"
-              >
-                {{ rank }}
-              </text>
-
-              <!-- 主体渐变字 -->
               <text
                 x="180"
-                y="48"
+                y="56"
                 text-anchor="middle"
-                font-size="42"
+                font-size="48"
                 font-weight="900"
-                letter-spacing="6"
+                letter-spacing="10"
                 :fill="`url(#rankGrad-${rankTone})`"
                 :filter="`url(#rankSoft-${rankTone})`"
                 :stroke="rankStroke"
@@ -191,58 +221,30 @@ const rankStroke = computed(() => {
               >
                 {{ rank }}
               </text>
-
-              <!-- 高光层，增强立体感 -->
               <text
                 x="180"
-                y="48"
+                y="56"
                 text-anchor="middle"
-                font-size="42"
+                font-size="48"
                 font-weight="900"
-                letter-spacing="6"
+                letter-spacing="10"
                 :fill="`url(#rankShine-${rankTone})`"
-                opacity="0.55"
+                opacity="0.45"
               >
                 {{ rank }}
               </text>
             </svg>
           </div>
         </div>
-
-        <div class="score-row">
-          <div class="cell">
-            <label>综合得分</label>
-            <b class="score-num">{{ score }}</b>
-          </div>
-          <div class="cell">
-            <label>评定等级</label>
-            <b>{{ grade }}</b>
-          </div>
-        </div>
-
-        <ul class="meta">
-          <li>
-            <span>完成用时</span>
-            <b>{{ formatTime(duration) }}</b>
-          </li>
-          <li>
-            <span>颁发日期</span>
-            <b>{{ dateText }}</b>
-          </li>
-        </ul>
       </section>
 
       <footer class="foot">
-        <div class="sign">
-          <p>颁发单位</p>
-          <b>火线行动</b>
+        <div class="sign-block">
+          <p>火线行动</p>
+          <p>{{ dateText }}</p>
         </div>
-        <div class="seal">
-          <span>安全认证</span>
-        </div>
+        <p class="motto">创意赋能 · 守护你我</p>
       </footer>
-
-      <p class="motto">创意赋能 · 守护你我</p>
     </div>
   </div>
 </template>
@@ -250,91 +252,132 @@ const rankStroke = computed(() => {
 <style scoped>
 .cert {
   position: relative;
+  width: 100%;
+  aspect-ratio: 210 / 297;
   padding: 2px;
   border-radius: 8px;
   background: var(--frame-grad);
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
+  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.32);
   --frame-grad: linear-gradient(145deg, #c9a227, #f0e2a0 35%, #8a6d1a 70%, #e8d48a);
-  --rank-grad: linear-gradient(120deg, #b8860b, #e6c35c 40%, #8b6914);
   --accent: #0d4ea8;
   --emblem-grad: linear-gradient(160deg, #1677ff, #0d4ea8);
+  --medal-hi: #fff3b0;
+  --medal-mid: #e0b83a;
+  --medal-lo: #9a7209;
 }
 
 .tone-gold {
   --frame-grad: linear-gradient(145deg, #d4af37, #fff1b0 32%, #a67c00 68%, #f3e0a0);
-  --rank-grad: linear-gradient(120deg, #9a7209, #f0d060 45%, #c9a227 75%, #7a5a08);
   --accent: #9a7209;
   --emblem-grad: linear-gradient(160deg, #f0d060, #c9a227 55%, #8b6914);
+  --medal-hi: #fff3b0;
+  --medal-mid: #e0b83a;
+  --medal-lo: #9a7209;
 }
 
 .tone-blue {
   --frame-grad: linear-gradient(145deg, #3d8bfd, #b7d6ff 32%, #1554b0 68%, #9ec5ff);
-  --rank-grad: linear-gradient(120deg, #0b3d91, #4ea1ff 45%, #1677ff 75%, #0a2f70);
   --accent: #0d4ea8;
   --emblem-grad: linear-gradient(160deg, #4ea1ff, #1677ff 55%, #0d4ea8);
+  --medal-hi: #cfe5ff;
+  --medal-mid: #3d8bfd;
+  --medal-lo: #0d4ea8;
 }
 
 .tone-teal {
   --frame-grad: linear-gradient(145deg, #2bbbad, #b8f0e8 32%, #0f7a6e 68%, #9be6db);
-  --rank-grad: linear-gradient(120deg, #0b6b5f, #3dd6c3 45%, #1aa89a 75%, #085249);
   --accent: #0f7a6e;
   --emblem-grad: linear-gradient(160deg, #3dd6c3, #1aa89a 55%, #0f7a6e);
+  --medal-hi: #c9fff7;
+  --medal-mid: #2bbbad;
+  --medal-lo: #0f7a6e;
 }
 
 .tone-silver {
   --frame-grad: linear-gradient(145deg, #9aa7b5, #e8eef4 32%, #5f6d7c 68%, #d5dde6);
-  --rank-grad: linear-gradient(120deg, #4a5562, #b7c2ce 45%, #7b8896 75%, #3a4450);
   --accent: #4a5562;
   --emblem-grad: linear-gradient(160deg, #b7c2ce, #7b8896 55%, #4a5562);
+  --medal-hi: #f2f5f8;
+  --medal-mid: #9aa7b5;
+  --medal-lo: #5f6d7c;
 }
 
 .cert-frame {
   position: relative;
-  padding: 22px 18px 16px;
+  box-sizing: border-box;
+  height: 100%;
+  padding: 5.5% 7% 4.5%;
   border-radius: 6px;
-  background: linear-gradient(180deg, #f7f4ec 0%, #efe9dc 100%);
   color: #1a2433;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  background-color: #f8f5ed;
+  background-image:
+    radial-gradient(ellipse 72% 58% at 50% 44%, rgba(201, 162, 39, 0.08), transparent 68%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='56' viewBox='0 0 56 56'%3E%3Cpath d='M28 4L52 28 28 52 4 28Z' fill='none' stroke='%238b6d1a' stroke-opacity='0.07' stroke-width='0.9'/%3E%3Cpath d='M28 16L40 28 28 40 16 28Z' fill='none' stroke='%238b6d1a' stroke-opacity='0.045' stroke-width='0.7'/%3E%3Ccircle cx='28' cy='28' r='2.2' fill='%238b6d1a' fill-opacity='0.05'/%3E%3C/svg%3E"),
+    linear-gradient(180deg, #f8f5ed 0%, #efe9dc 100%);
+  background-size: auto, 56px 56px, auto;
+  background-repeat: no-repeat, repeat, no-repeat;
+  background-position: center, center, center;
 }
 
 .cert-frame::before {
   content: '';
   position: absolute;
-  inset: 8px;
-  border: 1px solid rgba(139, 109, 26, 0.35);
+  inset: 2.6%;
+  z-index: 2;
+  border: 1px solid rgba(139, 109, 26, 0.3);
   border-radius: 4px;
   pointer-events: none;
 }
 
+/* 中心浅水印 */
+.cert-frame::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 48%;
+  z-index: 0;
+  width: 58%;
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  opacity: 0.09;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Ccircle cx='60' cy='60' r='52' fill='none' stroke='%238b6d1a' stroke-width='2.2'/%3E%3Ccircle cx='60' cy='60' r='44' fill='none' stroke='%238b6d1a' stroke-width='1'/%3E%3Cpath fill='%238b6d1a' d='M60 28l6.2 18.8H86l-15.6 11.4 6 18.8L60 65.6 43.6 77l6-18.8L34 46.8h19.8z'/%3E%3C/svg%3E")
+    center / contain no-repeat;
+}
+
 .corner {
   position: absolute;
-  width: 16px;
-  height: 16px;
-  border: 2px solid rgba(139, 109, 26, 0.55);
   z-index: 1;
+  width: 12px;
+  height: 12px;
+  border: 2px solid rgba(139, 109, 26, 0.48);
 }
 
 .tl {
-  top: 12px;
-  left: 12px;
+  top: 3.6%;
+  left: 3.6%;
   border-right: none;
   border-bottom: none;
 }
 .tr {
-  top: 12px;
-  right: 12px;
+  top: 3.6%;
+  right: 3.6%;
   border-left: none;
   border-bottom: none;
 }
 .bl {
-  bottom: 12px;
-  left: 12px;
+  bottom: 3.6%;
+  left: 3.6%;
   border-right: none;
   border-top: none;
 }
 .br {
-  bottom: 12px;
-  right: 12px;
+  bottom: 3.6%;
+  right: 3.6%;
   border-left: none;
   border-top: none;
 }
@@ -343,89 +386,64 @@ const rankStroke = computed(() => {
   position: relative;
   z-index: 1;
   text-align: center;
+  flex-shrink: 0;
 }
 
 .emblem {
   position: relative;
-  width: 56px;
-  height: 56px;
-  margin: 0 auto 10px;
+  width: 48px;
+  height: 54px;
+  margin: 0 auto 4px;
 }
 
-.emblem-ring {
-  position: absolute;
-  inset: 0;
-  border-radius: 50%;
-  border: 2px solid #8b6d1a;
-  box-shadow: inset 0 0 0 3px rgba(201, 162, 39, 0.25);
-}
-
-.emblem-core {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  width: 36px;
-  height: 36px;
-  transform: translate(-50%, -50%);
-  border-radius: 50%;
-  background: var(--emblem-grad);
-  color: #fff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.emblem-core i {
-  font-style: normal;
-  font-weight: 800;
-  font-size: 18px;
-  line-height: 1;
+.medal {
   display: block;
-  transform: translateY(0.5px);
-}
-
-.org {
-  color: #5c6b7a;
-  font-size: 12px;
-  letter-spacing: 0.08em;
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.18));
 }
 
 h2 {
-  margin-top: 6px;
-  font-size: 26px;
+  margin: 6px 0 0;
+  font-size: clamp(20px, 5.8vw, 26px);
   font-weight: 800;
-  letter-spacing: 0.18em;
+  letter-spacing: 0.22em;
   color: #132033;
+  line-height: 1.2;
 }
 
 .sub {
-  margin-top: 4px;
+  margin: 4px 0 0;
   color: #8b6d1a;
-  font-size: 11px;
+  font-size: 10px;
   letter-spacing: 0.16em;
 }
 
-.no {
-  margin-top: 8px;
-  color: #6a7785;
+/* 公文文号 */
+.cert-no {
+  margin: 8px 0 0;
+  text-align: center;
+  color: #5c6b7a;
   font-size: 11px;
   font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
 }
 
 .divider {
   position: relative;
   z-index: 1;
-  margin: 14px 8px 12px;
+  margin: 10px 0 14px;
   height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(139, 109, 26, 0.55), transparent);
+  flex-shrink: 0;
+  background: linear-gradient(90deg, transparent, rgba(139, 109, 26, 0.5), transparent);
 }
 
 .divider i {
   position: absolute;
   left: 50%;
   top: 50%;
-  width: 8px;
-  height: 8px;
+  width: 7px;
+  height: 7px;
   transform: translate(-50%, -50%) rotate(45deg);
   background: #c9a227;
 }
@@ -433,177 +451,104 @@ h2 {
 .body {
   position: relative;
   z-index: 1;
-  padding: 0 4px;
-}
-
-.statement {
-  color: #3a4a5c;
-  font-size: 13px;
-  line-height: 1.7;
-  text-align: center;
-}
-
-.statement.tail {
-  margin-top: 8px;
-  text-align: justify;
-}
-
-.who-line {
-  margin-top: 6px;
-  text-align: center;
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  overflow: hidden;
 }
 
 .who {
-  display: inline-block;
-  min-width: 4em;
-  padding: 0 10px 4px;
-  color: var(--accent);
-  font-size: 20px;
-  font-weight: 800;
-  line-height: 1.35;
-  letter-spacing: 0.08em;
-  background-image: linear-gradient(var(--accent), var(--accent));
-  background-position: 0 100%;
-  background-repeat: no-repeat;
-  background-size: 100% 2px;
-}
-
-.rank-banner {
-  margin: 16px 0 12px;
-  padding: 14px 8px 10px;
+  margin: 0 0 10px;
   text-align: center;
-  border-radius: 8px;
-  border: 1px solid rgba(139, 109, 26, 0.22);
-  background: rgba(255, 255, 255, 0.55);
+  color: var(--accent);
+  font-size: clamp(20px, 6vw, 26px);
+  font-weight: 800;
+  letter-spacing: 0.2em;
+  line-height: 1.25;
+  flex-shrink: 0;
 }
 
-.rank-label {
-  color: #6a7785;
-  font-size: 12px;
-  letter-spacing: 0.16em;
+/* 公文正文：首行缩进，避免窄屏硬拆词 */
+.doc {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
 }
 
-.rank-title-wrap {
-  margin-top: 4px;
+.doc > p {
+  margin: 0;
+  color: #2a3648;
+  font-size: clamp(12px, 3.6vw, 14px);
+  line-height: 1.75;
+  text-align: justify;
+  text-justify: inter-ideograph;
+}
+
+.lead {
+  text-indent: 2em;
+}
+
+.lead-sub {
+  margin-top: 2px;
+  text-indent: 2em;
+}
+
+.rank-line {
+  margin: 12px 0 0;
+  padding: 12px 8px;
+  border-radius: 10px;
+  border: 1px solid rgba(139, 109, 26, 0.18);
+  background: rgba(255, 255, 255, 0.5);
+  flex-shrink: 0;
 }
 
 .rank-svg {
   display: block;
   width: 100%;
-  height: 68px;
+  height: 64px;
   overflow: visible;
   font-family: 'PingFang SC', 'Microsoft YaHei', 'Segoe UI', sans-serif;
 }
 
-.score-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-}
-
-.cell {
-  padding: 12px 10px;
-  text-align: center;
-  border: 1px solid rgba(139, 109, 26, 0.22);
-  background: rgba(255, 255, 255, 0.5);
-}
-
-.cell label {
-  display: block;
-  color: #6a7785;
-  font-size: 11px;
-}
-
-.cell b {
-  display: block;
-  margin-top: 4px;
-  color: #132033;
-  font-size: 18px;
-}
-
-.score-num {
-  color: var(--accent) !important;
-  font-size: 28px !important;
-  font-variant-numeric: tabular-nums;
-}
-
-.meta {
-  list-style: none;
-  margin-top: 12px;
-  border: 1px solid rgba(139, 109, 26, 0.22);
-  background: rgba(255, 255, 255, 0.4);
-}
-
-.meta li {
-  display: flex;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 10px 12px;
-  border-bottom: 1px solid rgba(139, 109, 26, 0.15);
-  font-size: 13px;
-}
-
-.meta li:last-child {
-  border-bottom: none;
-}
-
-.meta span {
-  color: #6a7785;
-}
-
-.meta b {
-  color: #132033;
-  font-variant-numeric: tabular-nums;
-}
-
 .foot {
   position: relative;
-  z-index: 1;
-  margin-top: 16px;
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-  padding: 0 4px 4px;
+  z-index: 2;
+  flex: 0 0 auto;
+  margin-top: auto;
+  padding-top: 16px;
 }
 
-.sign p {
-  color: #6a7785;
-  font-size: 11px;
+.sign-block {
+  margin-left: auto;
+  width: max-content;
+  max-width: 100%;
+  text-align: right;
 }
 
-.sign b {
-  display: block;
-  margin-top: 16px;
-  padding-top: 6px;
-  min-width: 120px;
-  border-top: 1px solid rgba(26, 36, 51, 0.35);
+.sign-block p {
+  margin: 0 0 6px;
   color: #132033;
-  font-size: 13px;
+  font-size: clamp(12px, 3.4vw, 13px);
+  line-height: 1.5;
+  white-space: nowrap;
+  letter-spacing: 0.08em;
 }
 
-.seal {
-  width: 72px;
-  height: 72px;
-  border-radius: 50%;
-  border: 2px solid rgba(196, 48, 43, 0.75);
-  color: rgba(196, 48, 43, 0.82);
-  display: grid;
-  place-items: center;
-  font-size: 12px;
-  font-weight: 800;
-  letter-spacing: 0.08em;
-  transform: rotate(-16deg);
-  background: radial-gradient(circle, rgba(196, 48, 43, 0.06), transparent 65%);
-  box-shadow: inset 0 0 0 5px rgba(196, 48, 43, 0.12);
+.sign-block p:last-child {
+  margin-bottom: 0;
+  color: #5c6b7a;
+  font-variant-numeric: tabular-nums;
 }
 
 .motto {
-  position: relative;
-  z-index: 1;
-  margin-top: 10px;
+  margin: 16px 0 0;
   text-align: center;
   color: #8b6d1a;
-  font-size: 11px;
-  letter-spacing: 0.2em;
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  line-height: 1.4;
 }
 </style>

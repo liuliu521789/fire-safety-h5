@@ -3,6 +3,7 @@ import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import GameButton from '@/components/GameButton.vue'
 import GameModal from '@/components/GameModal.vue'
+import SoundToggle from '@/components/SoundToggle.vue'
 import { LEVELS } from '@/data/levels'
 import { useGameStore } from '@/stores/game'
 import { formatTime, scoreLabel } from '@/utils/game'
@@ -52,6 +53,9 @@ function retry() {
 
 <template>
   <div class="game-shell result">
+    <div class="page-top">
+      <SoundToggle />
+    </div>
     <div class="content">
       <p class="eyebrow">MISSION REPORT</p>
       <h1>消防安全能力报告</h1>
@@ -73,13 +77,13 @@ function retry() {
       </ul>
 
       <div class="actions">
-        <GameButton block label="生成安全证书" @click="openNameModal" />
+        <GameButton block label="生成证书" @click="openNameModal" />
         <GameButton block variant="ghost" label="重新挑战" @click="retry" />
       </div>
     </div>
 
     <GameModal v-if="showNameModal" title="填写证书姓名" closable @close="showNameModal = false">
-      <p class="hint">请输入您的姓名，将显示在安全证书上。</p>
+      <p class="hint">请输入您的姓名，将显示在证书上。</p>
       <input
         v-model="nameInput"
         class="name-input"
@@ -101,6 +105,12 @@ function retry() {
 <style scoped>
 .result {
   padding: 24px 16px calc(28px + var(--safe-bottom));
+}
+
+.page-top {
+  display: flex;
+  justify-content: flex-end;
+  margin: -8px 0 8px;
 }
 
 .content {

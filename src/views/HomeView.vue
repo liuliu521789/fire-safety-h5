@@ -3,6 +3,7 @@ import gsap from 'gsap'
 import { nextTick, onMounted, onUnmounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import GameTransition from '@/components/GameTransition.vue'
+import SoundToggle from '@/components/SoundToggle.vue'
 import { useGameStore } from '@/stores/game'
 import { assetUrl } from '@/utils/assets'
 import { playTone } from '@/utils/sound'
@@ -91,6 +92,9 @@ function goLevel() {
 
 <template>
   <div class="home" :class="{ ready }">
+    <div class="home-top">
+      <SoundToggle />
+    </div>
     <div ref="stageRef" class="stage">
       <picture class="bg-wrap">
         <source :srcset="homeBgWebp" type="image/webp" />
@@ -166,6 +170,13 @@ function goLevel() {
   min-height: 100svh;
   overflow: hidden;
   background: #02080f;
+}
+
+.home-top {
+  position: absolute;
+  top: calc(10px + env(safe-area-inset-top, 0px));
+  right: 12px;
+  z-index: 6;
 }
 
 .stage {

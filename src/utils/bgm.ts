@@ -3,8 +3,15 @@
 let audio: HTMLAudioElement | null = null
 let wanted = true
 let unlocked = false
+let ducked = false
 
 const BGM_VOLUME = 0.25
+const BGM_DUCK_VOLUME = 0.05
+
+function applyVolume() {
+  if (!audio) return
+  audio.volume = ducked ? BGM_DUCK_VOLUME : BGM_VOLUME
+}
 
 function getAudio() {
   if (!audio) {
@@ -22,7 +29,7 @@ async function playInternal(): Promise<boolean> {
   if (!wanted) return false
   const el = getAudio()
   try {
-    el.volume = BGM_VOLUME
+    applyVolume()
     await el.play()
     unlocked = true
     return true
@@ -39,6 +46,12 @@ export function stopBgm() {
   } catch {
     // ignore
   }
+}
+
+/** 语音播报时压低 BGM，避免盖住接警语音 */
+export function setBgmDucked(next: boolean) {
+  ducked = next
+  applyVolume()
 }
 
 export function setBgmEnabled(enabled: boolean) {

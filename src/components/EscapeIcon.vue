@@ -1,6 +1,6 @@
 <script setup lang="ts">
 defineProps<{
-  type: 'fire' | 'smoke' | 'junk' | 'lift' | 'wrong' | 'exit' | 'player' | 'victim'
+  type: 'fire' | 'smoke' | 'junk' | 'lift' | 'wrong' | 'exit' | 'player' | 'victim' | 'towel'
 }>()
 </script>
 
@@ -64,6 +64,49 @@ defineProps<{
         stroke-linecap="round"
       />
       <text x="32" y="52" text-anchor="middle" fill="#a5d6a7" font-size="7" font-weight="700">EXIT</text>
+    </g>
+
+    <!-- 湿毛巾道具 -->
+    <g v-else-if="type === 'towel'">
+      <ellipse cx="32" cy="50" rx="16" ry="4" fill="#0d2137" opacity="0.35" />
+      <path
+        d="M14 22c0-6 8-10 18-10s18 4 18 10v18c0 5-8 9-18 9s-18-4-18-9V22z"
+        fill="#81d4fa"
+      />
+      <path
+        d="M16 24c1 4 8 7 16 7s15-3 16-7"
+        fill="none"
+        stroke="#e1f5fe"
+        stroke-width="2"
+        opacity="0.85"
+      />
+      <path
+        d="M18 34c2 3 8 5 14 5s12-2 14-5"
+        fill="none"
+        stroke="#4fc3f7"
+        stroke-width="2"
+        opacity="0.7"
+      />
+      <path
+        d="M22 18c3-2 7-3 10-3 4 0 8 1 12 3"
+        fill="none"
+        stroke="#29b6f6"
+        stroke-width="2.5"
+        stroke-linecap="round"
+      />
+      <circle cx="24" cy="40" r="2" fill="#e1f5fe" opacity="0.8" />
+      <circle cx="38" cy="42" r="1.6" fill="#e1f5fe" opacity="0.7" />
+    </g>
+
+    <!-- 玩家：普通互助逃生者 -->
+    <g v-else-if="type === 'player'">
+      <circle cx="32" cy="14" r="8" fill="#ffcc80" />
+      <path d="M24 12c1-7 15-7 16 0" fill="#5d4037" />
+      <path d="M18 26h28l-2 22H20z" fill="#43a047" />
+      <path d="M22 34h20" stroke="#2e7d32" stroke-width="2" />
+      <path d="M18 30c-5 1-8 7-6 12" stroke="#ffcc80" stroke-width="4" stroke-linecap="round" fill="none" />
+      <path d="M46 30c5 1 8 7 6 12" stroke="#ffcc80" stroke-width="4" stroke-linecap="round" fill="none" />
+      <path d="M24 48v10M40 48v10" stroke="#455a64" stroke-width="4" stroke-linecap="round" />
     </g>
 
     <!-- 被困人员：普通人举手呼救 -->
