@@ -1,7 +1,7 @@
-export async function shareChallenge(score: number) {
+export async function shareChallenge(score: number, shareUrl?: string) {
   const title = '火线行动：消防安全挑战'
   const text = `我在《火线行动》获得 ${score} 分，快来挑战消防安全任务！`
-  const url = window.location.href.split('#')[0]
+  const url = shareUrl || window.location.href.split('#')[0]
 
   if (navigator.share) {
     try {

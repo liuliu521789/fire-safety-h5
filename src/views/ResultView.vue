@@ -6,6 +6,7 @@ import GameModal from '@/components/GameModal.vue'
 import SoundToggle from '@/components/SoundToggle.vue'
 import { LEVELS } from '@/data/levels'
 import { useGameStore } from '@/stores/game'
+import { encodeCertSnapshot } from '@/utils/certShare'
 import { formatTime, scoreLabel } from '@/utils/game'
 import { playTone } from '@/utils/sound'
 
@@ -42,7 +43,8 @@ function confirmName() {
   game.setUserName(name)
   showNameModal.value = false
   playTone('correct', game.soundEnabled)
-  router.push('/certificate')
+  const c = encodeCertSnapshot(game.buildCertSnapshot())
+  router.push({ path: '/certificate', query: { c } })
 }
 
 function retry() {

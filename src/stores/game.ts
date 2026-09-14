@@ -114,6 +114,39 @@ export const useGameStore = defineStore('game', () => {
     persist()
   }
 
+  function applyCertSnapshot(snap: {
+    score: number
+    userName: string
+    duration?: number
+    startTime: number | null
+    endTime: number | null
+    levelScores: LevelScores
+  }) {
+    score.value = snap.score
+    userName.value = snap.userName
+    levelScores.value = { ...emptyScores(), ...snap.levelScores }
+    startTime.value = snap.startTime
+    endTime.value =
+      snap.endTime ??
+      (snap.startTime != null && snap.duration != null
+        ? snap.startTime + snap.duration * 1000
+        : snap.endTime)
+    gameStarted.value = true
+    gameCompleted.value = true
+    persist()
+  }
+
+  function buildCertSnapshot() {
+    return {
+      score: score.value,
+      userName: userName.value,
+      duration: durationSeconds.value,
+      startTime: startTime.value,
+      endTime: endTime.value,
+      levelScores: { ...levelScores.value },
+    }
+  }
+
   function setUserName(name: string) {
     userName.value = name.trim()
     persist()
@@ -166,5 +199,7 @@ export const useGameStore = defineStore('game', () => {
     toggleSound,
     resetAll,
     persist,
+    applyCertSnapshot,
+    buildCertSnapshot,
   }
 })
