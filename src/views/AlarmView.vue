@@ -24,6 +24,23 @@ let introPlayed = false
 const INTRO = '火警报警演练开始，请拨打正确的火警电话。'
 const keys = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '*', '0', '#'] as const
 
+const stageGuide = computed(() => {
+  switch (stage.value) {
+    case 'dial':
+      return '在键盘输入正确火警号码，再点「呼叫」'
+    case 'what':
+      return '选择发生了什么情况（本题选「火灾」）'
+    case 'where':
+      return '选择火灾发生地点'
+    case 'people':
+      return '选择是否有人被困'
+    case 'calling':
+      return '正在接警调度，请留意字幕与语音'
+    default:
+      return '报警信息已提交'
+  }
+})
+
 const whereClip: Record<string, string> = {
   小区: 'where_community',
   商场: 'where_mall',
@@ -204,6 +221,7 @@ function nextLevel() {
 <template>
   <div class="game-shell level">
     <GameHeader code="04" title="紧急报警" right-text="报警" />
+    <p class="mission-guide">{{ stageGuide }}</p>
 
     <div class="phone scene-panel">
       <template v-if="stage === 'dial'">
@@ -309,8 +327,10 @@ function nextLevel() {
 
 .task {
   text-align: center;
-  font-weight: 700;
+  font-weight: 800;
+  font-size: 17px;
   margin-bottom: 14px;
+  color: #fff8e1;
 }
 
 .screen {
@@ -358,8 +378,13 @@ function nextLevel() {
 .speech-hint {
   margin-top: 10px;
   text-align: center;
-  color: #ffe082;
+  color: #9ec5ff;
   font-size: 12px;
+  font-weight: 600;
+  padding: 8px 10px;
+  border-radius: 10px;
+  border: 1px solid rgba(22, 119, 255, 0.28);
+  background: rgba(22, 119, 255, 0.08);
 }
 
 .choices {

@@ -122,6 +122,21 @@ img {
   line-height: 1.55;
 }
 
+/* 关卡顶部任务说明：融入 HUD，不抢戏 */
+.mission-guide {
+  margin: 0 16px 10px;
+  padding: 9px 12px 9px 14px;
+  border-radius: 10px;
+  border: 1px solid rgba(22, 119, 255, 0.22);
+  border-left: 3px solid rgba(91, 171, 255, 0.85);
+  background: rgba(7, 26, 43, 0.55);
+  color: #c9daf0;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.5;
+  letter-spacing: 0.01em;
+}
+
 .fade-slide-enter-active,
 .fade-slide-leave-active {
   transition: opacity 0.35s ease, transform 0.35s ease;

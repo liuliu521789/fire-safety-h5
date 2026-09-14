@@ -4,6 +4,7 @@ import { useRouter } from 'vue-router'
 import EscapeIcon from '@/components/EscapeIcon.vue'
 import FireEffect from '@/components/FireEffect.vue'
 import GameButton from '@/components/GameButton.vue'
+import GameCoachBanner from '@/components/GameCoachBanner.vue'
 import GameHeader from '@/components/GameHeader.vue'
 import GameModal from '@/components/GameModal.vue'
 import GameTimer from '@/components/GameTimer.vue'
@@ -448,9 +449,12 @@ onUnmounted(() => {
     </GameHeader>
 
     <div v-if="phase === 'quiz'" class="quiz scene-panel">
+      <p class="mission-guide quiz-guide">
+        {{ multiMode ? '多选题：可点选多项后点「确认提交」' : '单选题：直接点击正确选项' }}
+      </p>
       <p class="bank-tip">
         本局第 {{ qIndex + 1 }} / {{ quizTotal }} 题
-        <span v-if="multiMode">（多选，可点多项后提交）</span>
+        <span v-if="multiMode">（多选）</span>
       </p>
       <p class="prompt">{{ question?.prompt }}</p>
       <div class="options">
@@ -501,8 +505,8 @@ onUnmounted(() => {
       v-else-if="phase === 'run' || phase === 'done'"
       class="run-wrap"
     >
-      <p class="mission-bar">
-        拖动人员 · 绕开火与障碍 · 拾取湿毛巾 · 抵达绿色安全出口
+      <p class="mission-guide mission-bar">
+        拖动蓝色人员 · 绕开火与障碍 · 拾取湿毛巾 · 抵达绿色安全出口
       </p>
       <div
         class="run-scene scene-panel"
@@ -511,6 +515,8 @@ onUnmounted(() => {
         @pointerup="onPointerUp"
         @pointercancel="onPointerUp"
       >
+        <GameCoachBanner :text="runMsg" :tone="msgTone" icon="🏃" />
+
         <div class="floor-map" aria-hidden="true">
           <div class="floor-grid" />
           <div class="zone room-fire">
@@ -609,7 +615,6 @@ onUnmounted(() => {
           <EscapeIcon type="victim" />
         </div>
       </div>
-      <p class="run-msg" :class="msgTone">{{ runMsg }}</p>
     </div>
 
     <GameModal v-if="showRunIntro" title="火场紧急逃生">
@@ -661,6 +666,10 @@ onUnmounted(() => {
 .quiz {
   margin: 0 16px;
   padding: 18px 16px;
+}
+
+.quiz-guide {
+  margin: 0 0 12px;
 }
 
 .bank-tip {
@@ -808,13 +817,7 @@ onUnmounted(() => {
 }
 
 .mission-bar {
-  padding: 8px 12px;
-  border-radius: 10px;
-  border: 1px solid rgba(255, 213, 74, 0.28);
-  background: rgba(255, 213, 74, 0.08);
-  color: #ffe9a8;
-  font-size: 12px;
-  line-height: 1.45;
+  margin: 0;
   text-align: center;
 }
 
@@ -1143,33 +1146,6 @@ onUnmounted(() => {
 
 .icon-node.player.hurt {
   animation: hurtFlash 0.35s ease;
-}
-
-.run-msg {
-  margin: 0;
-  text-align: center;
-  padding: 10px 12px;
-  border-radius: 12px;
-  background: rgba(7, 26, 43, 0.88);
-  border: 1px solid rgba(143, 163, 184, 0.25);
-  font-size: 13px;
-  line-height: 1.45;
-  min-height: 42px;
-}
-
-.run-msg.warn {
-  border-color: rgba(255, 213, 74, 0.45);
-  color: #ffe082;
-}
-
-.run-msg.bad {
-  border-color: rgba(229, 57, 53, 0.55);
-  color: #ffcdd2;
-}
-
-.run-msg.ok {
-  border-color: rgba(22, 119, 255, 0.35);
-  color: #d7e6ff;
 }
 
 .intro-body {

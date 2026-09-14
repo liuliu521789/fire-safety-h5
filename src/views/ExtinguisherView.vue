@@ -3,6 +3,7 @@ import { computed, onUnmounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import FireEffect from '@/components/FireEffect.vue'
 import GameButton from '@/components/GameButton.vue'
+import GameCoachBanner from '@/components/GameCoachBanner.vue'
 import GameHeader from '@/components/GameHeader.vue'
 import GameModal from '@/components/GameModal.vue'
 import { useGameStore } from '@/stores/game'
@@ -45,6 +46,14 @@ let raf = 0
 
 const currentStep = computed(() => STEPS.find((s) => s.n === step.value) ?? STEPS[0])
 const extinguishPct = computed(() => Math.round((1 - flame.value) * 100))
+const coachIcon = computed(() => {
+  if (tipTone.value === 'bad') return '⚠️'
+  if (tipTone.value === 'warn') return '👉'
+  if (step.value === 1) return '🧯'
+  if (step.value === 2) return '➡️'
+  if (step.value === 3) return '🎯'
+  return '🤚'
+})
 
 function setTip(text: string, tone: 'ok' | 'warn' | 'bad' = 'ok') {
   tip.value = text
@@ -305,7 +314,7 @@ onUnmounted(() => {
 <template>
   <div class="game-shell level">
     <GameHeader code="03" title="初起灭火" right-text="提拉握压" />
-    <p class="mission">按「提、拔、握、压」四步正确使用灭火器</p>
+    <p class="mission-guide">按「提、拔、握、压」四步正确使用灭火器</p>
 
     <div class="step-rail">
       <div
@@ -320,6 +329,8 @@ onUnmounted(() => {
     </div>
 
     <div ref="sceneRef" class="ext-scene scene-panel">
+      <GameCoachBanner :text="tip" :tone="tipTone" :icon="coachIcon" />
+
       <div class="room-bg" aria-hidden="true">
         <div class="wall" />
         <div class="floor" />
@@ -359,7 +370,7 @@ onUnmounted(() => {
           @pointerup="onPinUp"
           @pointercancel="onPinUp"
         >
-          <p class="pin-hint">向右拔出 →</p>
+          <p class="pin-hint">按住黄销 · 向右滑 →</p>
           <div class="pin-track">
             <div class="pin-fill" :style="{ width: `${(pinDragX / 72) * 100}%` }" />
             <div
@@ -401,7 +412,7 @@ onUnmounted(() => {
       <div
         v-if="step >= 3"
         class="nozzle"
-        :class="{ aligned, spraying }"
+        :class="{ aligned, spraying, guide: step === 3 && !aligned }"
         :style="{ left: `${nozzle.x}%`, top: `${nozzle.y}%` }"
         @pointerdown="onNozzleDown"
         @pointermove="onNozzleMove"
@@ -409,13 +420,13 @@ onUnmounted(() => {
         @pointercancel="onNozzleUp"
       >
         <span class="nozzle-head" />
-        <span class="nozzle-label">喷管</span>
+        <span class="nozzle-label">{{ step === 3 ? '拖我对准' : '喷管' }}</span>
       </div>
 
       <button
         v-if="step === 4"
         class="spray-btn"
-        :class="{ spraying }"
+        :class="{ spraying, pulse: !spraying && !done }"
         type="button"
         @pointerdown="startSpray"
         @pointerup="stopSpray"
@@ -436,8 +447,7 @@ onUnmounted(() => {
     </div>
 
     <div class="ops">
-      <p class="tip" :class="tipTone">{{ tip }}</p>
-      <p class="sub">当前：{{ currentStep.name }} · {{ currentStep.title }}</p>
+      <p class="sub">当前步骤：{{ currentStep.name }} · {{ currentStep.title }}</p>
     </div>
 
     <GameModal v-if="done" title="灭火成功！">
@@ -526,7 +536,7 @@ onUnmounted(() => {
 .ext-scene {
   position: relative;
   margin: 0 16px;
-  height: min(50dvh, 430px);
+  height: min(52dvh, 450px);
   overflow: hidden;
   touch-action: none;
   border: 1px solid rgba(22, 119, 255, 0.28);
@@ -660,7 +670,7 @@ onUnmounted(() => {
 .ext-unit {
   position: absolute;
   left: 22%;
-  top: 54%;
+  top: 48%;
   z-index: 4;
   transform: translate(-50%, -50%);
   display: flex;
@@ -671,14 +681,14 @@ onUnmounted(() => {
 
 .ext-unit.picked {
   left: 24%;
-  top: 50%;
+  top: 46%;
   filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.35));
 }
 
 .extinguisher {
   border: none;
   background: transparent;
-  padding: 0;
+  padding: 4px;
   line-height: 0;
   pointer-events: auto;
 }
@@ -693,13 +703,15 @@ onUnmounted(() => {
 }
 
 .ext-emoji {
-  display: block;
-  width: 72px;
-  height: 72px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 84px;
+  height: 92px;
   font-size: 72px;
-  line-height: 72px;
+  line-height: 1;
   text-align: center;
-  overflow: hidden;
+  overflow: visible;
   filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.35));
   user-select: none;
   pointer-events: none;
@@ -732,24 +744,26 @@ onUnmounted(() => {
 }
 
 .pin-zone {
-  width: 132px;
+  width: 148px;
   z-index: 7;
   touch-action: none;
   display: grid;
   gap: 4px;
-  padding: 6px 8px;
-  border-radius: 10px;
-  background: rgba(7, 26, 43, 0.82);
-  border: 1px solid rgba(255, 213, 74, 0.4);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  padding: 8px 10px;
+  border-radius: 12px;
+  background: rgba(7, 26, 43, 0.9);
+  border: 1.5px solid rgba(255, 213, 74, 0.65);
+  box-shadow:
+    0 4px 14px rgba(0, 0, 0, 0.3),
+    0 0 16px rgba(255, 213, 74, 0.2);
 }
 
 .pin-hint {
   margin: 0;
   text-align: center;
   color: #ffe082;
-  font-size: 11px;
-  font-weight: 700;
+  font-size: 12px;
+  font-weight: 800;
   line-height: 1.2;
   animation: pinHint 1.1s ease-in-out infinite;
 }
@@ -821,6 +835,10 @@ onUnmounted(() => {
   box-shadow: 0 0 16px rgba(67, 160, 71, 0.4);
 }
 
+.nozzle.guide {
+  animation: nozzleGuide 1.1s ease-in-out infinite;
+}
+
 .nozzle.spraying {
   transform: translate(-50%, -50%) scale(1.06);
 }
@@ -861,6 +879,10 @@ onUnmounted(() => {
   align-content: center;
   gap: 2px;
   touch-action: none;
+}
+
+.spray-btn.pulse {
+  animation: sprayPulse 1.15s ease-in-out infinite;
 }
 
 .spray-btn:active {
@@ -940,33 +962,11 @@ onUnmounted(() => {
   padding: 0 16px;
 }
 
-.tip {
-  padding: 10px 12px;
-  border-radius: 12px;
-  border: 1px solid rgba(22, 119, 255, 0.3);
-  background: rgba(7, 26, 43, 0.55);
-  font-size: 13px;
-  line-height: 1.45;
-}
-
-.tip.warn {
-  border-color: rgba(255, 213, 74, 0.45);
-  color: #ffe082;
-}
-
-.tip.bad {
-  border-color: rgba(229, 57, 53, 0.5);
-  color: #ffcdd2;
-}
-
-.tip.ok {
-  color: #d7e6ff;
-}
-
 .sub {
-  margin-top: 8px;
-  color: var(--assist-gray);
-  font-size: 12px;
+  margin-top: 0;
+  color: #b8c9db;
+  font-size: 13px;
+  font-weight: 600;
 }
 
 @keyframes pinHint {
@@ -978,14 +978,37 @@ onUnmounted(() => {
 
 @keyframes extPulse {
   50% {
-    transform: scale(1.04);
-    filter: brightness(1.08);
+    transform: scale(1.06);
+    filter: brightness(1.1);
+  }
+}
+
+@keyframes nozzleGuide {
+  0%,
+  100% {
+    box-shadow: 0 0 14px rgba(22, 119, 255, 0.35);
+  }
+  50% {
+    box-shadow: 0 0 22px rgba(255, 213, 74, 0.55);
+    border-color: rgba(255, 213, 74, 0.85);
+  }
+}
+
+@keyframes sprayPulse {
+  0%,
+  100% {
+    transform: scale(1);
+    box-shadow: 0 8px 22px rgba(229, 57, 53, 0.45);
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 10px 28px rgba(255, 213, 74, 0.45);
   }
 }
 
 @keyframes aimPulse {
   50% {
-    transform: translate(-50%, -50%) scale(1.06);
+    transform: translate(-50%, -50%) scale(1.08);
     opacity: 0.85;
   }
 }

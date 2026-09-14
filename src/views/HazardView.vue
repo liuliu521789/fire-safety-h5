@@ -2,6 +2,7 @@
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import GameButton from '@/components/GameButton.vue'
+import GameCoachBanner from '@/components/GameCoachBanner.vue'
 import GameHeader from '@/components/GameHeader.vue'
 import GameModal from '@/components/GameModal.vue'
 import GameProgress from '@/components/GameProgress.vue'
@@ -12,7 +13,7 @@ import { useGameStore } from '@/stores/game'
 import { assetUrl } from '@/utils/assets'
 import { playTone } from '@/utils/sound'
 
-const IDLE_HINT_MS = 5000
+const IDLE_HINT_MS = 3000
 
 const router = useRouter()
 const game = useGameStore()
@@ -35,6 +36,17 @@ const foundList = computed(() => HAZARDS.filter((h) => found.value.has(h.id)))
 const unfound = computed(() => HAZARDS.filter((h) => !found.value.has(h.id)))
 const hazardWebp = assetUrl('images/hazard-home.webp')
 const hazardJpg = assetUrl('images/hazard-home.jpg')
+const coachText = computed(() => {
+  if (active.value) return `已发现：${active.value.label}。继续点击场景中可疑物品`
+  if (missMsg.value) return missMsg.value
+  if (hintedId.value) return '已高亮一处可疑位置，点击黄色框查看'
+  return '点击场景里可疑物品找出隐患 · 找不到可点右下角提示'
+})
+const coachTone = computed<'ok' | 'warn' | 'bad'>(() => {
+  if (missMsg.value) return 'warn'
+  if (active.value) return 'ok'
+  return 'ok'
+})
 
 function clearIdleTimer() {
   if (idleTimer != null) {
@@ -154,9 +166,11 @@ function hotspotStyle(h: HazardItem) {
       </template>
     </GameHeader>
 
-    <p class="mission">观察家庭场景，点击图中的消防安全隐患</p>
+    <p class="mission-guide">观察家庭场景，点击图中可疑物品找出消防安全隐患</p>
 
     <div class="scene scene-panel" @click="onMiss">
+      <GameCoachBanner :text="coachText" :tone="coachTone" icon="🔍" />
+
       <picture class="scene-bg-wrap">
         <source :srcset="hazardWebp" type="image/webp" />
         <img
@@ -195,8 +209,8 @@ function hotspotStyle(h: HazardItem) {
       >
         <span class="tip-card-emoji">💡</span>
         <span class="tip-card-text">
-          <b>太难了？</b>
-          <i>给点提示吧</i>
+          <b>卡住了？</b>
+          <i>点我高亮一处隐患</i>
         </span>
       </button>
 
@@ -211,7 +225,7 @@ function hotspotStyle(h: HazardItem) {
         <p class="tip">{{ active.tip }}</p>
       </div>
       <p v-else-if="missMsg" class="miss">{{ missMsg }}</p>
-      <p v-else class="idle">仔细观察场景，点击可疑物品找出隐患</p>
+      <p v-else class="idle">在客厅、厨房、阳台仔细找可疑物品</p>
 
       <ul v-if="foundList.length" class="found-list">
         <li v-for="item in foundList" :key="item.id">
@@ -327,13 +341,15 @@ function hotspotStyle(h: HazardItem) {
   display: flex;
   align-items: center;
   gap: 8px;
-  max-width: min(72%, 220px);
+  max-width: min(72%, 240px);
   padding: 10px 12px;
-  border: 1px solid rgba(255, 213, 74, 0.55);
-  border-radius: 14px;
-  background: rgba(7, 26, 43, 0.88);
-  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.35);
-  color: #ffe9a8;
+  border: 1px solid rgba(22, 119, 255, 0.35);
+  border-radius: 12px;
+  background: rgba(7, 26, 43, 0.9);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.32);
+  color: #d7e6ff;
   text-align: left;
   cursor: pointer;
   animation: tipCardIn 0.35s ease both;
@@ -357,14 +373,14 @@ function hotspotStyle(h: HazardItem) {
 
 .tip-card-text b {
   font-size: 13px;
-  font-weight: 800;
-  color: #ffd54a;
+  font-weight: 700;
+  color: #9ec5ff;
 }
 
 .tip-card-text i {
   font-style: normal;
   font-size: 12px;
-  color: #d7e6ff;
+  color: #c9daf0;
 }
 
 .hotspot {
@@ -383,14 +399,16 @@ function hotspotStyle(h: HazardItem) {
   position: absolute;
   inset: 8%;
   border-radius: 12px;
-  border: 1.5px dashed rgba(255, 213, 74, 0.35);
-  opacity: 0;
+  border: 1.5px dashed rgba(255, 213, 74, 0.55);
+  opacity: 0.55;
+  animation: dashPulse 2.4s linear infinite;
   transition: opacity 0.2s ease;
 }
 
 .hotspot:not(.found):hover .scan-ring,
 .hotspot:not(.found):active .scan-ring {
   opacity: 1;
+  border-color: rgba(255, 213, 74, 0.9);
   animation: dashPulse 1.2s linear infinite;
 }
 
@@ -474,8 +492,9 @@ function hotspotStyle(h: HazardItem) {
 
 .miss,
 .idle {
-  color: var(--assist-gray);
-  font-size: 13px;
+  color: #d7e6ff;
+  font-size: 14px;
+  font-weight: 600;
 }
 
 .found-list {

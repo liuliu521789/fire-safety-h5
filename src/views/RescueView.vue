@@ -4,6 +4,7 @@ import { useRouter } from 'vue-router'
 import EscapeIcon from '@/components/EscapeIcon.vue'
 import FireEffect from '@/components/FireEffect.vue'
 import GameButton from '@/components/GameButton.vue'
+import GameCoachBanner from '@/components/GameCoachBanner.vue'
 import GameHeader from '@/components/GameHeader.vue'
 import GameModal from '@/components/GameModal.vue'
 import GameProgress from '@/components/GameProgress.vue'
@@ -424,7 +425,7 @@ onUnmounted(() => {
       </template>
     </GameHeader>
 
-    <p class="mission">拖动人物，背起被困者送到右侧绿色安全区</p>
+    <p class="mission-guide">拖动人物 · 靠近被困者点「背起」· 送到右侧绿色安全区</p>
 
     <div class="roster" aria-label="救援进度">
       <div
@@ -446,6 +447,8 @@ onUnmounted(() => {
       @pointerup="onPointerUp"
       @pointercancel="onPointerUp"
     >
+      <GameCoachBanner :text="tip" :tone="tipTone" icon="🦺" />
+
       <div class="floor-map" aria-hidden="true">
         <div class="floor-base" />
         <div class="floor-grid" />
@@ -559,10 +562,6 @@ onUnmounted(() => {
           清理通道
         </button>
       </div>
-    </div>
-
-    <div class="ops">
-      <p class="tip" :class="tipTone">{{ tip }}</p>
     </div>
 
     <GameModal v-if="failed" title="救援失败">
@@ -977,30 +976,5 @@ onUnmounted(() => {
 
 .action-btn.ghost {
   background: #1677ff;
-}
-
-.ops {
-  margin-top: 10px;
-  padding: 0 16px;
-}
-
-.tip {
-  padding: 10px 12px;
-  border-radius: 12px;
-  border: 1px solid rgba(22, 119, 255, 0.28);
-  background: rgba(7, 26, 43, 0.5);
-  font-size: 13px;
-  line-height: 1.45;
-  color: #d7e6ff;
-}
-
-.tip.warn {
-  border-color: rgba(255, 213, 74, 0.4);
-  color: #ffe082;
-}
-
-.tip.bad {
-  border-color: rgba(229, 57, 53, 0.45);
-  color: #ffcdd2;
 }
 </style>
