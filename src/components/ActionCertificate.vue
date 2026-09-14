@@ -99,6 +99,16 @@ const rankStroke = computed(() => {
       <div class="corner bl" />
       <div class="corner br" />
 
+      <!-- 中心五角星印章水印：独立元素避免伪元素/背景图裁切 -->
+      <svg class="seal-mark" viewBox="0 0 120 120" aria-hidden="true">
+        <circle cx="60" cy="60" r="48" fill="none" stroke="#8b6d1a" stroke-width="2.2" />
+        <circle cx="60" cy="60" r="40" fill="none" stroke="#8b6d1a" stroke-width="1" />
+        <path
+          fill="#8b6d1a"
+          d="M60 34 L65.9 51.9 L84.7 52 L69.5 63.1 L75.3 81 L60 70 L44.7 81 L50.5 63.1 L35.3 52 L54.1 51.9 Z"
+        />
+      </svg>
+
       <header class="head">
         <div class="emblem" aria-hidden="true">
           <svg class="medal" viewBox="0 0 64 72" role="img">
@@ -333,20 +343,20 @@ const rankStroke = computed(() => {
   pointer-events: none;
 }
 
-/* 中心浅水印 */
-.cert-frame::after {
-  content: '';
+/* 中心浅水印：正圆框 + 几何居中五角星，留足描边边距避免裁切 */
+.seal-mark {
   position: absolute;
+  display: block;
   left: 50%;
-  top: 48%;
+  top: 50%;
   z-index: 0;
-  width: 58%;
+  width: 52%;
+  height: auto;
   aspect-ratio: 1;
   transform: translate(-50%, -50%);
   pointer-events: none;
   opacity: 0.09;
-  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Ccircle cx='60' cy='60' r='52' fill='none' stroke='%238b6d1a' stroke-width='2.2'/%3E%3Ccircle cx='60' cy='60' r='44' fill='none' stroke='%238b6d1a' stroke-width='1'/%3E%3Cpath fill='%238b6d1a' d='M60 28l6.2 18.8H86l-15.6 11.4 6 18.8L60 65.6 43.6 77l6-18.8L34 46.8h19.8z'/%3E%3C/svg%3E")
-    center / contain no-repeat;
+  overflow: visible;
 }
 
 .corner {

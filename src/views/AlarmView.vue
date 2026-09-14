@@ -6,7 +6,7 @@ import GameHeader from '@/components/GameHeader.vue'
 import GameModal from '@/components/GameModal.vue'
 import { useGameStore } from '@/stores/game'
 import { playTone } from '@/utils/sound'
-import { speak, speakSequence, stopSpeak, unlockSpeech, canSpeak } from '@/utils/speech'
+import { speakClip, speakClipSequence, stopSpeak, unlockSpeech, canSpeak } from '@/utils/speech'
 
 const router = useRouter()
 const game = useGameStore()
@@ -24,12 +24,42 @@ let introPlayed = false
 const INTRO = '火警报警演练开始，请拨打正确的火警电话。'
 const keys = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '*', '0', '#'] as const
 
+const whereClip: Record<string, string> = {
+  小区: 'where_community',
+  商场: 'where_mall',
+  工厂: 'where_factory',
+}
+
+const peopleClip: Record<string, string> = {
+  有: 'people_yes',
+  没有: 'people_no',
+  不清楚: 'people_unknown',
+}
+
+const dispatchClip: Record<string, Record<string, string>> = {
+  小区: {
+    有: 'dispatch_community_yes',
+    没有: 'dispatch_community_no',
+    不清楚: 'dispatch_community_unknown',
+  },
+  商场: {
+    有: 'dispatch_mall_yes',
+    没有: 'dispatch_mall_no',
+    不清楚: 'dispatch_mall_unknown',
+  },
+  工厂: {
+    有: 'dispatch_factory_yes',
+    没有: 'dispatch_factory_no',
+    不清楚: 'dispatch_factory_unknown',
+  },
+}
+
 const canSubmitInfo = computed(() => what.value === '火灾' && !!where.value && !!people.value)
 
-async function announce(display: string, voice?: string, rate = 1) {
+async function announce(display: string, clip: string) {
   subtitle.value = display
   if (!game.soundEnabled) return
-  await speak(voice ?? display, true, rate)
+  await speakClip(clip, true, display)
 }
 
 async function playIntroFromGesture() {
@@ -37,7 +67,7 @@ async function playIntroFromGesture() {
   introPlayed = true
   speechHint.value = ''
   unlockSpeech()
-  await announce(INTRO)
+  await announce(INTRO, 'intro')
 }
 
 onMounted(() => {
@@ -77,11 +107,14 @@ async function call() {
   if (dial.value === '119') {
     playTone('correct', game.soundEnabled)
     stage.value = 'what'
-    await announce('火警电话已接通。您好，消防救援指挥中心，请问发生了什么情况？')
+    await announce(
+      '火警电话已接通。您好，消防救援指挥中心，请问发生了什么情况？',
+      'connected',
+    )
   } else {
     playTone('wrong', game.soundEnabled)
     dialError.value = '号码不正确，请拨打正确的火警电话'
-    await announce('号码不正确，请拨打正确的火警电话。')
+    await announce('号码不正确，请拨打正确的火警电话。', 'wrong_number')
   }
 }
 
@@ -91,10 +124,10 @@ async function chooseWhat(v: string) {
   playTone('click', game.soundEnabled)
   if (v === '火灾') {
     stage.value = 'where'
-    await announce('收到，发生火灾。请问发生在哪里？小区、商场，还是工厂？')
+    await announce('收到，发生火灾。请问发生在哪里？小区、商场，还是工厂？', 'ask_where')
   } else {
     playTone('wrong', game.soundEnabled)
-    await announce('这里是火警专线，请报告火灾相关情况。')
+    await announce('这里是火警专线，请报告火灾相关情况。', 'not_fire')
   }
 }
 
@@ -103,35 +136,47 @@ async function chooseWhere(v: string) {
   where.value = v
   playTone('click', game.soundEnabled)
   stage.value = 'people'
-  await announce(`地点已记录，发生在${v}。请问是否有人被困？`)
+  const text = `地点已记录，发生在${v}。请问是否有人被困？`
+  await announce(text, whereClip[v] || 'where_community')
 }
 
 async function choosePeople(v: string) {
   unlockSpeech()
   people.value = v
   playTone('click', game.soundEnabled)
-  await announce(
-    `人员情况已记录，${v === '有' ? '有人被困' : v === '没有' ? '无人被困' : '人员情况暂不清楚'}。请确认报警信息。`,
-  )
+  const detail = v === '有' ? '有人被困' : v === '没有' ? '无人被困' : '人员情况暂不清楚'
+  await announce(`人员情况已记录，${detail}。请确认报警信息。`, peopleClip[v] || 'people_unknown')
 }
 
 async function submitReport() {
   unlockSpeech()
   if (!canSubmitInfo.value) {
     playTone('wrong', game.soundEnabled)
-    await announce('请完整填写火灾地点和人员情况后再提交。')
+    await announce('请完整填写火灾地点和人员情况后再提交。', 'incomplete')
     return
   }
   stage.value = 'calling'
   playTone('alarm', game.soundEnabled)
-  const lines = [
-    '信息已接收。',
-    `${where.value}发生火灾，${people.value === '有' ? '有人员被困' : people.value === '没有' ? '暂无人被困' : '人员情况不清楚'}。`,
-    '消防车正在赶赴现场，请保持电话畅通，注意自身安全。',
-  ]
-  await speakSequence(lines, game.soundEnabled, 180, (line) => {
-    subtitle.value = line
-  })
+  const peopleStatus =
+    people.value === '有' ? '有人员被困' : people.value === '没有' ? '暂无人被困' : '人员情况不清楚'
+  const dispatchText = `${where.value}发生火灾，${peopleStatus}。`
+  const dispatchKey =
+    dispatchClip[where.value]?.[people.value] || 'dispatch_community_unknown'
+  await speakClipSequence(
+    [
+      { clip: 'received', text: '信息已接收。' },
+      { clip: dispatchKey, text: dispatchText },
+      {
+        clip: 'enroute',
+        text: '消防车正在赶赴现场，请保持电话畅通，注意自身安全。',
+      },
+    ],
+    game.soundEnabled,
+    180,
+    (line) => {
+      subtitle.value = line
+    },
+  )
   finish(true)
 }
 
@@ -143,7 +188,10 @@ function finish(ok: boolean) {
   game.persist()
   playTone(ok ? 'success' : 'wrong', game.soundEnabled)
   if (ok) {
-    void announce('报警成功。报警时应尽量说清楚发生地点、火灾情况和人员情况。')
+    void announce(
+      '报警成功。报警时应尽量说清楚发生地点、火灾情况和人员情况。',
+      'success',
+    )
   }
 }
 
