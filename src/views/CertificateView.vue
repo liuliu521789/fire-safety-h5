@@ -156,9 +156,6 @@ function retry() {
         <GameButton block variant="ghost" label="重新挑战" @click="retry" />
       </div>
       <p v-if="tip" class="tip">{{ tip }}</p>
-      <p v-if="inWeChat" class="wechat-hint">
-        若需在系统浏览器打开，请复制本页链接（已含成绩），不要直接从微信菜单打开空白页。
-      </p>
     </div>
 
     <div v-if="showPreview" class="preview-mask" @click.self="closePreview">
@@ -206,14 +203,6 @@ function retry() {
   text-align: center;
   color: var(--assist-gray);
   font-size: 12px;
-  line-height: 1.5;
-}
-
-.wechat-hint {
-  margin-top: 8px;
-  text-align: center;
-  color: #ffe082;
-  font-size: 11px;
   line-height: 1.5;
 }
 
