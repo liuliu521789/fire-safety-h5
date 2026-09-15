@@ -40,7 +40,8 @@ const coachText = computed(() => {
   if (active.value) return `已发现：${active.value.label}。继续点击场景中可疑物品`
   if (missMsg.value) return missMsg.value
   if (hintedId.value) return '已高亮一处可疑位置，点击黄色框查看'
-  return '点击场景里可疑物品找出隐患 · 找不到可点右下角提示'
+  // 空闲不常驻提示，避免遮挡操作；顶部任务条已说明玩法
+  return ''
 })
 const coachTone = computed<'ok' | 'warn' | 'bad'>(() => {
   if (missMsg.value) return 'warn'
@@ -113,9 +114,14 @@ function onMiss() {
   if (done.value) return
   scheduleTipCard()
   playTone('wrong', game.soundEnabled)
-  missMsg.value = '这里暂时没有发现明显隐患。'
+  const msg = '这里暂时没有发现明显隐患。'
+  // 清空后再写入，确保连续点空也能再次弹出轻提示
+  missMsg.value = ''
+  queueMicrotask(() => {
+    missMsg.value = msg
+  })
   window.setTimeout(() => {
-    missMsg.value = ''
+    if (missMsg.value === msg) missMsg.value = ''
   }, 1200)
 }
 
@@ -167,10 +173,9 @@ function hotspotStyle(h: HazardItem) {
     </GameHeader>
 
     <p class="mission-guide">观察家庭场景，点击图中可疑物品找出消防安全隐患</p>
+    <GameCoachBanner :text="coachText" :tone="coachTone" icon="🔍" />
 
     <div class="scene scene-panel" @click="onMiss">
-      <GameCoachBanner :text="coachText" :tone="coachTone" icon="🔍" />
-
       <picture class="scene-bg-wrap">
         <source :srcset="hazardWebp" type="image/webp" />
         <img
@@ -399,19 +404,13 @@ function hotspotStyle(h: HazardItem) {
   position: absolute;
   inset: 8%;
   border-radius: 12px;
-  border: 1.5px dashed rgba(255, 213, 74, 0.55);
-  opacity: 0.55;
-  animation: dashPulse 2.4s linear infinite;
+  border: 1.5px dashed transparent;
+  opacity: 0;
+  pointer-events: none;
   transition: opacity 0.2s ease;
 }
 
-.hotspot:not(.found):hover .scan-ring,
-.hotspot:not(.found):active .scan-ring {
-  opacity: 1;
-  border-color: rgba(255, 213, 74, 0.9);
-  animation: dashPulse 1.2s linear infinite;
-}
-
+/* 仅在用户点击「给点提示」后显示黄色虚线 */
 .hotspot.hint .scan-ring {
   inset: 4%;
   opacity: 1;
@@ -419,7 +418,6 @@ function hotspotStyle(h: HazardItem) {
   border-color: rgba(255, 213, 74, 0.95);
   animation: hintBlink 0.85s ease-in-out infinite;
   box-shadow: 0 0 10px rgba(255, 213, 74, 0.35);
-  pointer-events: none;
 }
 
 .hotspot.found {
@@ -532,12 +530,6 @@ function hotspotStyle(h: HazardItem) {
   gap: 6px;
   color: #d7e6ff;
   font-size: 13px;
-}
-
-@keyframes dashPulse {
-  to {
-    border-color: rgba(255, 213, 74, 0.8);
-  }
 }
 
 @keyframes tipCardIn {

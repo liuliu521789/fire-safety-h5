@@ -508,6 +508,7 @@ onUnmounted(() => {
       <p class="mission-guide mission-bar">
         拖动蓝色人员 · 绕开火与障碍 · 拾取湿毛巾 · 抵达绿色安全出口
       </p>
+      <GameCoachBanner :text="runMsg" :tone="msgTone" icon="🏃" />
       <div
         class="run-scene scene-panel"
         @pointerdown="onPointerDown"
@@ -515,8 +516,6 @@ onUnmounted(() => {
         @pointerup="onPointerUp"
         @pointercancel="onPointerUp"
       >
-        <GameCoachBanner :text="runMsg" :tone="msgTone" icon="🏃" />
-
         <div class="floor-map" aria-hidden="true">
           <div class="floor-grid" />
           <div class="zone room-fire">
@@ -818,7 +817,12 @@ onUnmounted(() => {
 
 .mission-bar {
   margin: 0;
-  text-align: center;
+}
+
+.run-wrap :deep(.coach-slot) {
+  margin-left: 0;
+  margin-right: 0;
+  margin-bottom: 0;
 }
 
 .run-scene {

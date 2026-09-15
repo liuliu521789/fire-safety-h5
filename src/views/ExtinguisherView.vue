@@ -315,6 +315,7 @@ onUnmounted(() => {
   <div class="game-shell level">
     <GameHeader code="03" title="初起灭火" right-text="提拉握压" />
     <p class="mission-guide">按「提、拔、握、压」四步正确使用灭火器</p>
+    <GameCoachBanner :text="tip" :tone="tipTone" :icon="coachIcon" />
 
     <div class="step-rail">
       <div
@@ -329,8 +330,6 @@ onUnmounted(() => {
     </div>
 
     <div ref="sceneRef" class="ext-scene scene-panel">
-      <GameCoachBanner :text="tip" :tone="tipTone" :icon="coachIcon" />
-
       <div class="room-bg" aria-hidden="true">
         <div class="wall" />
         <div class="floor" />

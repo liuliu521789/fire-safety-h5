@@ -426,6 +426,7 @@ onUnmounted(() => {
     </GameHeader>
 
     <p class="mission-guide">拖动人物 · 靠近被困者点「背起」· 送到右侧绿色安全区</p>
+    <GameCoachBanner :text="tip" :tone="tipTone" icon="🦺" />
 
     <div class="roster" aria-label="救援进度">
       <div
@@ -447,8 +448,6 @@ onUnmounted(() => {
       @pointerup="onPointerUp"
       @pointercancel="onPointerUp"
     >
-      <GameCoachBanner :text="tip" :tone="tipTone" icon="🦺" />
-
       <div class="floor-map" aria-hidden="true">
         <div class="floor-base" />
         <div class="floor-grid" />
