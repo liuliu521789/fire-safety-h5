@@ -40,14 +40,33 @@ const stageRef = ref<HTMLElement | null>(null)
 const transitioning = ref(false)
 const pressedId = ref<string | null>(null)
 const ready = ref(false)
+const preloadPromise = ref<Promise<unknown> | null>(null)
 const homeBgWebp = assetUrl('homebg.webp')
 const homeBgJpg = assetUrl('homebg.jpg')
 let enterTween: gsap.core.Timeline | null = null
 
+function preloadImage(src: string) {
+  return new Promise<void>((resolve) => {
+    const img = new Image()
+    img.onload = () => resolve()
+    img.onerror = () => resolve()
+    img.src = src
+  })
+}
+
+function preloadFirstLevel() {
+  return Promise.all([
+    preloadImage(assetUrl('images/hazard-home.webp')),
+    preloadImage(assetUrl('images/hazard-home.jpg')),
+    // 给路由分包一点预热时间；失败不影响进入
+    import('@/views/HazardView.vue').catch(() => undefined),
+  ])
+}
+
 onMounted(async () => {
   await nextTick()
   ready.value = true
-  // 预取第一关场景图，进入关卡时更快
+  // 静默预取，点击后加载层会再等一轮确保到位
   ;['images/hazard-home.webp', 'images/hazard-home.jpg'].forEach((p) => {
     const link = document.createElement('link')
     link.rel = 'prefetch'
@@ -81,6 +100,7 @@ function onHotspot(action: 'start') {
       gsap.to(stageRef.value, { scale: 0.985, duration: 0.18, yoyo: true, repeat: 1 })
     }
     game.startGame()
+    preloadPromise.value = preloadFirstLevel()
     transitioning.value = true
   }
 }
@@ -156,7 +176,14 @@ function goLevel() {
       </button>
     </div>
 
-    <GameTransition v-if="transitioning" @done="goLevel" />
+    <GameTransition
+      v-if="transitioning"
+      title="行动部署中"
+      subtitle="正在接入任务系统…"
+      :duration="1450"
+      :wait-until="preloadPromise"
+      @done="goLevel"
+    />
   </div>
 </template>
 
