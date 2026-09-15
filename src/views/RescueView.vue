@@ -54,7 +54,7 @@ const towel = ref({ x: 36, y: 78, taken: false })
 const running = ref(true)
 const done = ref(false)
 const failed = ref(false)
-const tip = ref('进入火场：靠近被困者背起，避开火焰与杂物，送达右侧安全出口')
+const tip = ref('科普演练：自身安全第一。靠近被困者背起，避开明火与杂物，送往右侧安全出口')
 const tipTone = ref<'ok' | 'warn' | 'bad'>('ok')
 const timerKey = ref(0)
 const firePulse = ref(0)
@@ -349,6 +349,13 @@ function fail() {
   setTip('救援失败：注意自身安全，火势过大应立即撤离并报警', 'bad')
 }
 
+/** 失败后可带当前救援分结束，避免反复卡关 */
+function endWithScore() {
+  if (done.value) return
+  failed.value = false
+  finish(false)
+}
+
 function finish(all: boolean) {
   if (done.value) return
   done.value = true
@@ -361,7 +368,14 @@ function finish(all: boolean) {
   game.setLevelScore('rescue', score)
   game.completeGame()
   playTone(all ? 'success' : 'correct', game.soundEnabled)
-  setTip(all ? '火线救援完成！三人全部安全转移' : '救援结束', 'ok')
+  setTip(
+    all
+      ? '火线救援完成！三人全部安全转移'
+      : rescuedCount.value > 0
+        ? `救援结束：已安全转移 ${rescuedCount.value} 人`
+        : '已结束挑战：火场中自身安全始终第一，优先撤离并报警',
+    rescuedCount.value > 0 ? 'ok' : 'warn',
+  )
 }
 
 function retry() {
@@ -425,7 +439,7 @@ onUnmounted(() => {
       </template>
     </GameHeader>
 
-    <p class="mission-guide">拖动人物 · 靠近被困者点「背起」· 送到右侧绿色安全区</p>
+    <p class="mission-guide">先自保再互助 · 拖动人物背起被困者 · 避开明火送往右侧安全区</p>
     <GameCoachBanner :text="tip" :tone="tipTone" icon="🦺" />
 
     <div class="roster" aria-label="救援进度">
@@ -566,20 +580,26 @@ onUnmounted(() => {
     <GameModal v-if="failed" title="救援失败">
       <p>生命值耗尽或未能完成转移。火场互助中，<strong>自身安全始终第一</strong>。</p>
       <p class="knowledge-tip">
-        发现有人被困时，优先确保逃生通道畅通、正确拨打火警，切勿贸然闯入浓烟与明火区域。能力不足时应先撤离自保并引导专业力量到场。
+        发现有人被困时，优先确保逃生通道畅通、正确拨打火警，切勿贸然闯入浓烟与明火区域。能力不足时应先撤离自保并引导专业力量到场。本关为科普演练，真实火场请以自保与报警为先。
       </p>
       <template #footer>
         <GameButton block label="重新挑战" @click="retry" />
+        <GameButton
+          block
+          variant="ghost"
+          :label="rescuedCount > 0 ? `带当前成绩结束（已救 ${rescuedCount} 人）` : '结束挑战并查看成绩'"
+          @click="endWithScore"
+        />
       </template>
     </GameModal>
 
-    <GameModal v-if="done" title="火线救援完成">
+    <GameModal v-if="done" :title="rescuedCount >= 3 ? '火线救援完成' : '救援演练结束'">
       <p>
         成功救援 <strong>{{ rescuedCount }}</strong> 人，本关
         <strong>{{ game.levelScores.rescue }}</strong> / 25
       </p>
       <p class="knowledge-tip">
-        火场互助原则：先报火警、评估风险，优先低姿防烟、避开明火，一次转移一人并尽快送达安全区域。自身难保时，应先撤离并继续呼救、指引。
+        火场互助原则：先报火警、评估风险，优先低姿防烟、避开明火；能力不足时先撤离自保并继续呼救、指引。真实火场切勿贸然冲入。
       </p>
       <template #footer>
         <GameButton block label="查看能力报告" @click="toResult" />

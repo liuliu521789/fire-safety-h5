@@ -66,7 +66,7 @@ function retry() {
       <div class="score-card scene-panel">
         <div class="big">{{ game.score }}</div>
         <div class="meta">
-          <span>等级：{{ game.rank }}</span>
+          <span>评级：{{ game.rank }}</span>
           <span>用时：{{ formatTime(game.durationSeconds) }}</span>
         </div>
       </div>

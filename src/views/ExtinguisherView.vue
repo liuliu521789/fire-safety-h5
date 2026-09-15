@@ -36,6 +36,7 @@ const picked = ref(false)
 const aligned = ref(false)
 const alignHold = ref(0)
 const done = ref(false)
+const skipped = ref(false)
 const canvasRef = ref<HTMLCanvasElement | null>(null)
 const sceneRef = ref<HTMLElement | null>(null)
 
@@ -270,6 +271,7 @@ function finish() {
   clearAlignTimer()
   if (done.value) return
   done.value = true
+  skipped.value = false
   step.value = 5
   setTip('灭火成功！记住口诀：提、拔、握、压', 'ok')
   game.extinguisherSuccess = true
@@ -277,6 +279,27 @@ function finish() {
   game.currentLevel = 4
   game.persist()
   playTone('success', game.soundEnabled)
+}
+
+/** 操作受阻时可跳过：按已完成步骤给部分分，避免软锁 */
+function skipLevel() {
+  stopSpray()
+  clearAlignTimer()
+  if (done.value) return
+  done.value = true
+  skipped.value = true
+  const partial = Math.min(12, Math.max(0, (step.value - 1) * 4))
+  setTip(
+    partial > 0
+      ? `已跳过本关，按当前进度记 ${partial} 分。记住口诀：提、拔、握、压`
+      : '已跳过本关。请牢记灭火器口诀：提、拔、握、压；火势过大应立即撤离并报警',
+    'warn',
+  )
+  game.extinguisherSuccess = false
+  game.setLevelScore('extinguisher', partial)
+  game.currentLevel = 4
+  game.persist()
+  playTone('click', game.soundEnabled)
 }
 
 function nextLevel() {
@@ -447,9 +470,20 @@ onUnmounted(() => {
 
     <div class="ops">
       <p class="sub">当前步骤：{{ currentStep.name }} · {{ currentStep.title }}</p>
+      <button
+        v-if="!done"
+        class="skip-link"
+        type="button"
+        @click="skipLevel"
+      >
+        操作受阻？跳过本关并继续
+      </button>
     </div>
 
-    <GameModal v-if="done" title="灭火成功！">
+    <GameModal v-if="done" :title="skipped ? '已跳过本关' : '灭火成功！'">
+      <p>
+        本关得分 <strong>{{ game.levelScores.extinguisher }}</strong> / 20
+      </p>
       <p class="knowledge-tip">
         灭火器使用口诀「提、拔、握、压」：提起灭火器 → 拔掉保险销 → 握住喷管对准火焰根部 →
         压下阀门喷射。扑救初起火灾时也要注意自身安全，火势过大应立即撤离并报警。
@@ -966,6 +1000,22 @@ onUnmounted(() => {
   color: #b8c9db;
   font-size: 13px;
   font-weight: 600;
+}
+
+.skip-link {
+  display: block;
+  margin-top: 10px;
+  padding: 8px 4px;
+  color: #9ec5ff;
+  font-size: 12px;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  opacity: 0.9;
+}
+
+.skip-link:active {
+  opacity: 0.7;
 }
 
 @keyframes pinHint {

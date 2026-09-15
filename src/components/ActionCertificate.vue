@@ -89,6 +89,13 @@ const rankStroke = computed(() => {
       return '#4a5562'
   }
 })
+
+const performanceText = computed(() => {
+  if (props.score >= 90) return '已完成本次消防安全科普挑战全部关卡，综合表现优秀。'
+  if (props.score >= 75) return '已完成本次消防安全科普挑战全部关卡，综合表现良好。'
+  if (props.score >= 60) return '已完成本次消防安全科普挑战全部关卡，基本掌握相关知识，仍需继续巩固。'
+  return '已完成本次消防安全科普挑战全部关卡，建议复习薄弱环节并再次练习。'
+})
 </script>
 
 <template>
@@ -169,7 +176,7 @@ const rankStroke = computed(() => {
           </svg>
         </div>
         <h2>火线行动证书</h2>
-        <p class="sub">HUOXIAN ACTION CERTIFICATE</p>
+        <p class="sub">消防安全科普演练纪念</p>
         <p class="cert-no">证书编号：{{ certNo }}</p>
       </header>
 
@@ -180,11 +187,11 @@ const rankStroke = computed(() => {
 
         <div class="doc">
           <p class="lead">
-            已顺利完成本次挑战全部关卡，综合表现良好。
+            {{ performanceText }}
           </p>
-          <p class="lead-sub">经评定，荣誉称号为：</p>
+          <p class="lead-sub">经演练评定，综合评级为：</p>
 
-          <div class="rank-line" aria-label="荣誉称号">
+          <div class="rank-line" aria-label="综合评级">
             <svg class="rank-svg" viewBox="0 0 360 88" role="img">
               <defs>
                 <linearGradient :id="`rankGrad-${rankTone}`" x1="0%" y1="0%" x2="0%" y2="100%">
@@ -250,7 +257,7 @@ const rankStroke = computed(() => {
 
       <footer class="foot">
         <div class="sign-block">
-          <p>火线行动</p>
+          <p>火线行动 · 科普演练</p>
           <p>{{ dateText }}</p>
         </div>
         <p class="motto">创意赋能 · 守护你我</p>
